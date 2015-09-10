@@ -2,318 +2,369 @@
 <html lang="ja">
 
 <head>
-    <meta charset="UTF-8">
-    <title>サイトのタイトル</title>
+  <meta charset="UTF-8">
+  <title>サイトのタイトル</title>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <!-- Boot Strap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
+  <!-- Boot Strap Slecter -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
 
-    <link rel="stylesheet" href="css/lib/bootstrap-datepicker.min.css">
-    <script src="js/lib/bootstrap-datepicker.min.js"></script>
+  <!-- Date Picker -->
+  <link rel="stylesheet" href="css/lib/bootstrap-datepicker.min.css">
+  <script src="js/lib/bootstrap-datepicker.min.js"></script>
 
-    <!-- <link rel="stylesheet" href="http://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/v4.0.0/build/css/bootstrap-datetimepicker.css">
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
-    <script src="moment-ja.js"></script>
-    <script src="http://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/v4.0.0/src/js/bootstrap-datetimepicker.js"></script> -->
+  <!-- LESS -->
+  <link rel="stylesheet/less" type="text/css" href="less/styles.less">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.5.1/less.min.js"></script>
 
-    <link rel="stylesheet/less" type="text/css" href="less/styles.less">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.5.1/less.min.js"></script>
-
-    <script src="js/application.js"></script>
+  <script src="js/application.js"></script>
 
 </head>
 
 <body>
 
-    <div id="spin-result">
-        エリア１
-    </div>
+  <div id="spin-result">
+    <img id="spin-result-img" src="img/pop.png">
+    <span id="spin-result-num"></span>
+  </div>
 
-    <div id="operation-btn">
-        <button class="btn btn-warning">SPIN</button>
-        <button class="btn btn-danger">BET</button>
-    </div>
+  <div id="operation-btn">
+    <button id="auto-btn" class="btn btn-default">AUTO / OFF</button>
+    <button id="bet-btn" class="btn btn-danger">BET</button>
+    <button id="spin-btn" class="btn btn-warning">SPIN</button><br>
+    <label><input type="checkbox" name="not-bet-newly-any-more" value="true"> not bet newly any more.</label>
+  </div>
 
-    <hr>
+  <hr>
 
-    <div id="bet-table" class="container">
-        <table class="table table-striped table-bordered">
-            <caption>
-                ■ Bet
-            </caption>
-            <thead>
-                <tr>
-                    <th>0</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                    <th>13</th>
-                    <th>14</th>
-                    <th>15</th>
-                    <th>16</th>
-                    <th>17</th>
-                    <th>18</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="bet-satus-0">-</td>
-                    <td id="bet-satus-1">-</td>
-                    <td id="bet-satus-2">BET</td>
-                    <td id="bet-satus-3">BET</td>
-                    <td id="bet-satus-4">-</td>
-                    <td id="bet-satus-5">-</td>
-                    <td id="bet-satus-6">BET</td>
-                    <td id="bet-satus-7">-</td>
-                    <td id="bet-satus-8">-</td>
-                    <td id="bet-satus-9">-</td>
-                    <td id="bet-satus-10">-</td>
-                    <td id="bet-satus-11">-</td>
-                    <td id="bet-satus-12">-</td>
-                    <td id="bet-satus-13">-</td>
-                    <td id="bet-satus-14">-</td>
-                    <td id="bet-satus-15">BET</td>
-                    <td id="bet-satus-16">-</td>
-                    <td id="bet-satus-17">-</td>
-                    <td id="bet-satus-18">-</td>
-                </tr>
-                <tr>
-                    <td id="bet-spin-0">-</td>
-                    <td id="bet-spin-1">-</td>
-                    <td id="bet-spin-2">126</td>
-                    <td id="bet-spin-3">47</td>
-                    <td id="bet-spin-4">-</td>
-                    <td id="bet-spin-5">-</td>
-                    <td id="bet-spin-6">89</td>
-                    <td id="bet-spin-7">-</td>
-                    <td id="bet-spin-8">-</td>
-                    <td id="bet-spin-9">-</td>
-                    <td id="bet-spin-10">-</td>
-                    <td id="bet-spin-11">-</td>
-                    <td id="bet-spin-12">-</td>
-                    <td id="bet-spin-13">-</td>
-                    <td id="bet-spin-14">-</td>
-                    <td id="bet-spin-15">7</td>
-                    <td id="bet-spin-16">-</td>
-                    <td id="bet-spin-17">-</td>
-                    <td id="bet-spin-18">-</td>
-                </tr>
-                <tr>
-                    <td id="bet-stakes-0">-</td>
-                    <td id="bet-stakes-1">-</td>
-                    <td id="bet-stakes-2">$</td>
-                    <td id="bet-stakes-3">$</td>
-                    <td id="bet-stakes-4">-</td>
-                    <td id="bet-stakes-5">-</td>
-                    <td id="bet-stakes-6">$</td>
-                    <td id="bet-stakes-7">-</td>
-                    <td id="bet-stakes-8">-</td>
-                    <td id="bet-stakes-9">-</td>
-                    <td id="bet-stakes-10">-</td>
-                    <td id="bet-stakes-11">-</td>
-                    <td id="bet-stakes-12">-</td>
-                    <td id="bet-stakes-13">-</td>
-                    <td id="bet-stakes-14">-</td>
-                    <td id="bet-stakes-15">$</td>
-                    <td id="bet-stakes-16">-</td>
-                    <td id="bet-stakes-17">-</td>
-                    <td id="bet-stakes-18">-</td>
-                </tr>
-            </tbody>
-            <thead>
-                <tr>
-                    <th>19</th>
-                    <th>20</th>
-                    <th>21</th>
-                    <th>22</th>
-                    <th>23</th>
-                    <th>24</th>
-                    <th>25</th>
-                    <th>26</th>
-                    <th>27</th>
-                    <th>28</th>
-                    <th>29</th>
-                    <th>30</th>
-                    <th>31</th>
-                    <th>32</th>
-                    <th>33</th>
-                    <th>34</th>
-                    <th>35</th>
-                    <th>36</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="bet-satus-19">-</td>
-                    <td id="bet-satus-20">-</td>
-                    <td id="bet-satus-21">-</td>
-                    <td id="bet-satus-22">-</td>
-                    <td id="bet-satus-23">BET</td>
-                    <td id="bet-satus-24">-</td>
-                    <td id="bet-satus-25">-</td>
-                    <td id="bet-satus-26">-</td>
-                    <td id="bet-satus-27">-</td>
-                    <td id="bet-satus-28">-</td>
-                    <td id="bet-satus-29">-</td>
-                    <td id="bet-satus-30">-</td>
-                    <td id="bet-satus-31">-</td>
-                    <td id="bet-satus-32">-</td>
-                    <td id="bet-satus-33">-</td>
-                    <td id="bet-satus-34">BET</td>
-                    <td id="bet-satus-35">-</td>
-                    <td id="bet-satus-36">BET</td>
-                </tr>
-                <tr>
-                    <td id="bet-spin-19">-</td>
-                    <td id="bet-spin-20">-</td>
-                    <td id="bet-spin-21">-</td>
-                    <td id="bet-spin-22">-</td>
-                    <td id="bet-spin-23">10</td>
-                    <td id="bet-spin-24">-</td>
-                    <td id="bet-spin-25">-</td>
-                    <td id="bet-spin-26">-</td>
-                    <td id="bet-spin-27">-</td>
-                    <td id="bet-spin-28">-</td>
-                    <td id="bet-spin-29">-</td>
-                    <td id="bet-spin-30">-</td>
-                    <td id="bet-spin-31">-</td>
-                    <td id="bet-spin-32">-</td>
-                    <td id="bet-spin-33">-</td>
-                    <td id="bet-spin-34">1</td>
-                    <td id="bet-spin-35">-</td>
-                    <td id="bet-spin-36">52</td>
-                </tr>
-                <tr>
-                    <td id="bet-stakes-19">-</td>
-                    <td id="bet-stakes-20">-</td>
-                    <td id="bet-stakes-21">-</td>
-                    <td id="bet-stakes-22">-</td>
-                    <td id="bet-stakes-23">$</td>
-                    <td id="bet-stakes-24">-</td>
-                    <td id="bet-stakes-25">-</td>
-                    <td id="bet-stakes-26">-</td>
-                    <td id="bet-stakes-27">-</td>
-                    <td id="bet-stakes-28">-</td>
-                    <td id="bet-stakes-29">-</td>
-                    <td id="bet-stakes-30">-</td>
-                    <td id="bet-stakes-31">-</td>
-                    <td id="bet-stakes-32">-</td>
-                    <td id="bet-stakes-33">-</td>
-                    <td id="bet-stakes-34">$</td>
-                    <td id="bet-stakes-35">-</td>
-                    <td id="bet-stakes-36">$</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <div id="bet-table" class="container">
+    <table class="table table-striped table-bordered">
+      <caption>
+        ■ Bet
+      </caption>
+      <thead>
+        <tr>
+          <th>0</th>
+          <th>1</th>
+          <th>2</th>
+          <th>3</th>
+          <th>4</th>
+          <th>5</th>
+          <th>6</th>
+          <th>7</th>
+          <th>8</th>
+          <th>9</th>
+          <th>10</th>
+          <th>11</th>
+          <th>12</th>
+          <th>13</th>
+          <th>14</th>
+          <th>15</th>
+          <th>16</th>
+          <th>17</th>
+          <th>18</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="bet-satus-0">-</td>
+          <td id="bet-satus-1">-</td>
+          <td id="bet-satus-2">BET</td>
+          <td id="bet-satus-3">BET</td>
+          <td id="bet-satus-4">-</td>
+          <td id="bet-satus-5">-</td>
+          <td id="bet-satus-6">BET</td>
+          <td id="bet-satus-7">-</td>
+          <td id="bet-satus-8">-</td>
+          <td id="bet-satus-9">-</td>
+          <td id="bet-satus-10">-</td>
+          <td id="bet-satus-11">-</td>
+          <td id="bet-satus-12">-</td>
+          <td id="bet-satus-13">-</td>
+          <td id="bet-satus-14">-</td>
+          <td id="bet-satus-15">BET</td>
+          <td id="bet-satus-16">-</td>
+          <td id="bet-satus-17">-</td>
+          <td id="bet-satus-18">-</td>
+        </tr>
+        <tr>
+          <td id="bet-spin-0">-</td>
+          <td id="bet-spin-1">-</td>
+          <td id="bet-spin-2">126</td>
+          <td id="bet-spin-3">47</td>
+          <td id="bet-spin-4">-</td>
+          <td id="bet-spin-5">-</td>
+          <td id="bet-spin-6">89</td>
+          <td id="bet-spin-7">-</td>
+          <td id="bet-spin-8">-</td>
+          <td id="bet-spin-9">-</td>
+          <td id="bet-spin-10">-</td>
+          <td id="bet-spin-11">-</td>
+          <td id="bet-spin-12">-</td>
+          <td id="bet-spin-13">-</td>
+          <td id="bet-spin-14">-</td>
+          <td id="bet-spin-15">7</td>
+          <td id="bet-spin-16">-</td>
+          <td id="bet-spin-17">-</td>
+          <td id="bet-spin-18">-</td>
+        </tr>
+        <tr>
+          <td id="bet-stakes-0">-</td>
+          <td id="bet-stakes-1">-</td>
+          <td id="bet-stakes-2">$</td>
+          <td id="bet-stakes-3">$</td>
+          <td id="bet-stakes-4">-</td>
+          <td id="bet-stakes-5">-</td>
+          <td id="bet-stakes-6">$</td>
+          <td id="bet-stakes-7">-</td>
+          <td id="bet-stakes-8">-</td>
+          <td id="bet-stakes-9">-</td>
+          <td id="bet-stakes-10">-</td>
+          <td id="bet-stakes-11">-</td>
+          <td id="bet-stakes-12">-</td>
+          <td id="bet-stakes-13">-</td>
+          <td id="bet-stakes-14">-</td>
+          <td id="bet-stakes-15">$</td>
+          <td id="bet-stakes-16">-</td>
+          <td id="bet-stakes-17">-</td>
+          <td id="bet-stakes-18">-</td>
+        </tr>
+      </tbody>
+      <thead>
+        <tr>
+          <th>19</th>
+          <th>20</th>
+          <th>21</th>
+          <th>22</th>
+          <th>23</th>
+          <th>24</th>
+          <th>25</th>
+          <th>26</th>
+          <th>27</th>
+          <th>28</th>
+          <th>29</th>
+          <th>30</th>
+          <th>31</th>
+          <th>32</th>
+          <th>33</th>
+          <th>34</th>
+          <th>35</th>
+          <th>36</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="bet-satus-19">-</td>
+          <td id="bet-satus-20">-</td>
+          <td id="bet-satus-21">-</td>
+          <td id="bet-satus-22">-</td>
+          <td id="bet-satus-23">BET</td>
+          <td id="bet-satus-24">-</td>
+          <td id="bet-satus-25">-</td>
+          <td id="bet-satus-26">-</td>
+          <td id="bet-satus-27">-</td>
+          <td id="bet-satus-28">-</td>
+          <td id="bet-satus-29">-</td>
+          <td id="bet-satus-30">-</td>
+          <td id="bet-satus-31">-</td>
+          <td id="bet-satus-32">-</td>
+          <td id="bet-satus-33">-</td>
+          <td id="bet-satus-34">BET</td>
+          <td id="bet-satus-35">-</td>
+          <td id="bet-satus-36">BET</td>
+        </tr>
+        <tr>
+          <td id="bet-spin-19">-</td>
+          <td id="bet-spin-20">-</td>
+          <td id="bet-spin-21">-</td>
+          <td id="bet-spin-22">-</td>
+          <td id="bet-spin-23">10</td>
+          <td id="bet-spin-24">-</td>
+          <td id="bet-spin-25">-</td>
+          <td id="bet-spin-26">-</td>
+          <td id="bet-spin-27">-</td>
+          <td id="bet-spin-28">-</td>
+          <td id="bet-spin-29">-</td>
+          <td id="bet-spin-30">-</td>
+          <td id="bet-spin-31">-</td>
+          <td id="bet-spin-32">-</td>
+          <td id="bet-spin-33">-</td>
+          <td id="bet-spin-34">1</td>
+          <td id="bet-spin-35">-</td>
+          <td id="bet-spin-36">52</td>
+        </tr>
+        <tr>
+          <td id="bet-stakes-19">-</td>
+          <td id="bet-stakes-20">-</td>
+          <td id="bet-stakes-21">-</td>
+          <td id="bet-stakes-22">-</td>
+          <td id="bet-stakes-23">$</td>
+          <td id="bet-stakes-24">-</td>
+          <td id="bet-stakes-25">-</td>
+          <td id="bet-stakes-26">-</td>
+          <td id="bet-stakes-27">-</td>
+          <td id="bet-stakes-28">-</td>
+          <td id="bet-stakes-29">-</td>
+          <td id="bet-stakes-30">-</td>
+          <td id="bet-stakes-31">-</td>
+          <td id="bet-stakes-32">-</td>
+          <td id="bet-stakes-33">-</td>
+          <td id="bet-stakes-34">$</td>
+          <td id="bet-stakes-35">-</td>
+          <td id="bet-stakes-36">$</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <div id="spin-result-history-table" class="container">
-        <table class="table table-striped table-bordered">
-            <caption>
-                ■ Spin Result
-            </caption>
-            <colgroup>
-                <col class="width5" />
-                <col class="width25" />
-                <col class="width70" />
-            </colgroup>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Number</th>
-                    <th>Last Hit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>23</td>
-                    <td>12</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>14</td>
-                    <td>128</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>21</td>
-                    <td>100</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <div id="spin-result-history-table" class="container">
+    <table class="table table-striped table-bordered">
+      <caption>
+        ■ Spin Result
+      </caption>
+      <colgroup>
+        <col class="width5" />
+        <col class="width25" />
+        <col class="width70" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Number</th>
+          <th>Last Hit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>23</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>14</td>
+          <td>128</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>21</td>
+          <td>100</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <div id="spin-result-profit-table" class="container">
-        <table class="table table-striped table-bordered">
-            <caption>
-                <div>
-                    ■ Spin Profit
-                </div>
-                <div class="input-group date">
-                    <input type="text" class="form-control">
-                    <span class="input-group-addon">
-                        <i class="glyphicon glyphicon-th"></i>
-                    </span>
-                </div>
-            </caption>
-            <colgroup>
-                <col class="width5" />
-                <col class="width40" />
-                <col class="width25" />
-                <col class="width30" />
-            </colgroup>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Number</th>
-                    <th>Profit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>2015/09/10</td>
-                    <td>12</td>
-                    <td>$3.5</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>2015/09/09</td>
-                    <td>32</td>
-                    <td>$0.7</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>2015/09/09</td>
-                    <td>21</td>
-                    <td>$1.2</td>
-                </tr>
-            </tbody>
-        </table>
+  <div id="spin-result-profit-table" class="container">
+    <table class="table table-striped table-bordered">
+      <caption>
+        ■ Spin Profit
+        <!-- <div>
+          ■ Spin Profit
+        </div>
+        <div class="input-group date">
+          <input type="text" class="form-control">
+          <span class="input-group-addon">
+            <i class="glyphicon glyphicon-th"></i>
+          </span>
+        </div> -->
+      </caption>
+      <colgroup>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Number</th>
+          <th>Last Hit</th>
+          <th>Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>2015/09/10</td>
+          <td>12</td>
+          <td>40</td>
+          <td>$3.5</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>2015/09/09</td>
+          <td>32</td>
+          <td>15</td>
+          <td>$0.7</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>2015/09/09</td>
+          <td>27</td>
+          <td>12</td>
+          <td>$1.8</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>2015/09/09</td>
+          <td>18</td>
+          <td>7</td>
+          <td>$2.2</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>2015/09/09</td>
+          <td>7</td>
+          <td>1</td>
+          <td>$3.1</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-
-
-    </div>
+  <div id="month-profit-table" class="container">
+    <table class="table table-striped table-bordered">
+      <caption>
+          ■ Profit of the month
+      </caption>
+      <colgroup>
+        <col class="width30" />
+        <col class="width70" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2015/09</td>
+          <td>$2,564</td>
+        </tr>
+        <tr>
+          <td>2015/08</td>
+          <td>$11,524.7</td>
+        </tr>
+        <tr>
+          <td>2015/07</td>
+          <td>$11,640</td>
+        </tr>
+        <tr>
+          <td>2015/06</td>
+          <td>$11,920</td>
+        </tr>
+        <tr>
+          <td>2015/05</td>
+          <td>$23,400</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 </body>
 

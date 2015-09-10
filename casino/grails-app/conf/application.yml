@@ -82,7 +82,7 @@ dataSource:
     jmxExport: true
     driverClassName: org.gjt.mm.mysql.Driver
     username: root
-    password:
+    password: 7hitoH1ra
 
 environments:
     development:
