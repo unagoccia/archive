@@ -15,17 +15,6 @@ $(function() {
       orientation: "bottom left",
       autoclose: true
     });
-
-    $("#auto-btn").click(function(e) {
-      if($(this).hasClass("btn-default")) {
-        $(this).removeClass("btn-default");
-        $(this).addClass("btn-success");
-      } else {
-        $(this).removeClass("btn-success");
-        $(this).addClass("btn-default");
-      }
-    });
-
   });
 
   function srNumResize() {
