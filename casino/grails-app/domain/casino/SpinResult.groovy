@@ -10,10 +10,10 @@ class SpinResult {
     /**
      * 前回の当たりからの回転数
      */
-    int spinNumberFromLastHit
+    int recentHit
 
     static constraints = {
         hitNumber nullable: false, blank: false
-        spinNumberFromLastHit nullable: false, blank: false
+        recentHit nullable: false, blank: false
     }
 }

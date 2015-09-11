@@ -48,7 +48,7 @@
       <div id="operation-btn">
         <button id="auto-btn" class="btn" ng-class="{'btn-success': isAuto, 'btn-default': !isAuto}" ng-click="autoModeChange()">AUTO / {{autoMode}}</button>
         <button id="bet-btn" class="btn btn-danger">BET</button>
-        <button id="spin-btn" class="btn btn-warning">SPIN</button>
+        <button id="spin-btn" class="btn btn-warning" ng-click="spin()">SPIN</button>
         <br>
         <label>
           <input type="checkbox" name="not-bet-newly-any-more" value="true"> not bet newly any more.</input>
@@ -60,6 +60,9 @@
 
     <div id="bet-table" ng-controller="BetTableController" class="ng-scope">
       <table class="table table-striped table-bordered">
+        <caption>
+          ■ Bet
+        </caption>
         <thead>
           <tr>
             <th ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.num}}</th>
@@ -94,9 +97,87 @@
         </tbody>
       </table>
     </div>
-  </div>
 
-  <!-- <div id="ngpaging" ng-controller="PagingController" class="ng-scope">
+    <div id="spin-result-history-table" ng-controller="SpinResultTableController" class="ng-scope">
+      <table class="table table-striped table-bordered">
+        <caption>
+          ■ Spin Result
+        </caption>
+        <colgroup>
+          <col class="width5" />
+          <col class="width25" />
+          <col class="width70" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Number</th>
+            <th>Recent Hit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="result in spinResults">
+            <td>{{result.id}}</td>
+            <td>{{result.num}}</td>
+            <td>{{result.recentHit}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="profit-table" ng-controller="ProfitTableController" class="ng-scope">
+      <table class="table table-striped table-bordered">
+        <caption>
+          ■ Profit
+        </caption>
+        <colgroup>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Number</th>
+            <th>Recent Hit</th>
+            <th>Profit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="profit in profits">
+            <td>{{profit.id}}</td>
+            <td>{{profit.date}}</td>
+            <td>{{profit.num}}</td>
+            <td>{{profit.recentHit}}</td>
+            <td>{{profit.profit}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="monthly-profit-table" ng-controller="MonthlyProfitTableController" class="ng-scope">
+      <table class="table table-striped table-bordered">
+        <caption>
+          ■ Monthly Profit
+        </caption>
+        <colgroup>
+          <col class="width30" />
+          <col class="width70" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Profit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="profit in monthlyProfit">
+            <td>{{profit.month}}</td>
+            <td>{{profit.mProfit}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- <div id="ngpaging" ng-controller="PagingController" class="ng-scope">
     <form class="form-inline">
       <div class="form-group">
         <label>１ページの件数:</label>
@@ -141,7 +222,7 @@
 
 
 
-  <!--
+    <!--
   <div id="bet-table" class="container">
     <table class="table table-striped table-bordered">
       <caption>
@@ -463,6 +544,7 @@
       </tbody>
     </table>
   </div> -->
+  </div>
 
 </body>
 

@@ -1,8 +1,16 @@
 var casinoApp = angular.module('casinoApp', []);
 
-casinoApp.controller("GameController", function($scope) {
+casinoApp.filter('offset', function() {
+  return function(input, start) {
+    start = parseInt(start);
+    return input.slice(start);
+  };
+});
+
+casinoApp.controller("GameController", function($scope, $http) {
   $scope.autoMode = "OFF";
   $scope.isAuto = false;
+
   $scope.autoModeChange = function() {
     if($scope.isAuto) {
       $scope.autoMode = "OFF";
@@ -11,8 +19,13 @@ casinoApp.controller("GameController", function($scope) {
       $scope.autoMode = "ON";
       $scope.isAuto = true;
     }
-  }
+  };
 
+  $scope.spin = function() {
+    $http.get("casino/spin").success( function( data ) {
+        $scope.result = data;
+    });
+  };
 });
 
 casinoApp.controller("BetTableController", function($scope) {
@@ -204,57 +217,99 @@ casinoApp.controller("BetTableController", function($scope) {
   }, ];
 });
 
-casinoApp.controller("PagingController", function($scope) {
-  $scope.itemsPerPage = 3;
-  $scope.currentPage = 1;
-  $scope.friends = [{
-    id: 1,
-    name: "相田",
-    age: 20,
-    address: "東京都品川区"
+casinoApp.controller("SpinResultTableController", function($scope) {
+  $scope.spinResults = [{
+    id: 5,
+    num: 23,
+    recentHit: 4,
   }, {
-    id: 2,
-    name: "伊藤",
-    age: 55,
-    address: "神奈川県横浜市"
+    id: 4,
+    num: 4,
+    recentHit: 45,
   }, {
     id: 3,
-    name: "上野",
-    age: 20,
-    address: "埼玉県川越市"
+    num: 31,
+    recentHit: 256,
+  }, {
+    id: 2,
+    num: 10,
+    recentHit: 86,
+  }, {
+    id: 1,
+    num: 23,
+    recentHit: 12,
   }, ];
-  $scope.range = function() {
-    $scope.maxPage = Math.ceil($scope.friends.length / $scope.itemsPerPage);
-    var ret = [];
-    for (var i = 1; i <= $scope.maxPage; i++) {
-      ret.push(i);
-    }
-    return ret;
-  };
-  $scope.setPage = function(n) {
-    $scope.currentPage = n;
-  };
-  $scope.prevPage = function() {
-    if ($scope.currentPage > 1) {
-      $scope.currentPage--;
-    }
-  };
-  $scope.nextPage = function() {
-    if ($scope.currentPage < maxPage) {
-      $scope.currentPage++;
-    }
-  };
-  $scope.prevPageDisabled = function() {
-    return $scope.currentPage === 1 ? "disabled" : "";
-  };
+});
 
-  $scope.nextPageDisabled = function() {
-    return $scope.currentPage === $scope.maxPage ? "disabled" : "";
-  };
+casinoApp.controller("ProfitTableController", function($scope) {
+  $scope.profits = [{
+    id: 5,
+    date: "2015/09/10",
+    num: 23,
+    recentHit: 4,
+    profit: "$3.2",
+  }, {
+    id: 4,
+    date: "2015/09/10",
+    num: 32,
+    recentHit: 45,
+    profit: "$1.6",
+  }, {
+    id: 3,
+    date: "2015/09/09",
+    num: 27,
+    recentHit: 42,
+    profit: "$2.2",
+  }, {
+    id: 2,
+    date: "2015/09/09",
+    num: 18,
+    recentHit: 86,
+    profit: "$2.7",
+  }, {
+    id: 1,
+    date: "2015/09/09",
+    num: 7,
+    recentHit: 11,
+    profit: "$3.5",
+  }, ];
 });
-casinoApp.filter('offset', function() {
-  return function(input, start) {
-    start = parseInt(start);
-    return input.slice(start);
-  };
+
+casinoApp.controller("MonthlyProfitTableController", function($scope) {
+  $scope.monthlyProfit = [{
+    month: "2015/09",
+    mProfit: "$2,564.2",
+  }, {
+    month: "2015/08",
+    mProfit: "$11,524.7",
+  }, {
+    month: "2015/07",
+    mProfit: "$11,640.1",
+  }, {
+    month: "2015/06",
+    mProfit: "$11,920.6",
+  }, {
+    month: "2015/05",
+    mProfit: "$23,400.2",
+  }, ];
 });
+
+// テンプレート
+// casinoApp.controller("TemplateController", function($scope) {
+//   $scope.friends = [{
+//     id: 1,
+//     name: "相田",
+//     age: 20,
+//     address: "東京都品川区"
+//   }, {
+//     id: 2,
+//     name: "伊藤",
+//     age: 55,
+//     address: "神奈川県横浜市"
+//   }, {
+//     id: 3,
+//     name: "上野",
+//     age: 20,
+//     address: "埼玉県川越市"
+//   }, ];
+// });
