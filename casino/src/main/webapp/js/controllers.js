@@ -10,6 +10,7 @@ casinoApp.filter('offset', function() {
 casinoApp.controller("GameController", function($scope, $http) {
   $scope.autoMode = "OFF";
   $scope.isAuto = false;
+  $scope.spinResultNum = "－";
 
   $scope.autoModeChange = function() {
     if($scope.isAuto) {
@@ -23,12 +24,33 @@ casinoApp.controller("GameController", function($scope, $http) {
 
   $scope.spin = function() {
     $http.get("casino/spin").success( function( data ) {
-        $scope.result = data;
+      // Update Spin Number
+      $scope.spinResultNum = data.spinResultNum;
+
+      // Update Bet Table
+      var betTableCtrlScope = angular.element(betTable).scope();
+      betTableCtrlScope.update(data.betList);
+
+      // Update Spin Result Table
+      var spinResultHistoryTableCtrlScope = angular.element(spinResultHistoryTable).scope();
+      spinResultHistoryTableCtrlScope.update(data.spinResultList);
+
+    });
+  };
+
+  $scope.reset = function() {
+    $http.get("casino/reset").success( function( data ) {
+      var betTableCtrlScope = angular.element(betTable).scope();
+      betTableCtrlScope.update(data);
     });
   };
 });
 
 casinoApp.controller("BetTableController", function($scope) {
+  $scope.update = function(data) {
+    $scope.bets = data;
+  };
+
   $scope.bets = [{
     num:      "0",
     status:   "-",
@@ -218,25 +240,29 @@ casinoApp.controller("BetTableController", function($scope) {
 });
 
 casinoApp.controller("SpinResultTableController", function($scope) {
-  $scope.spinResults = [{
+  $scope.update = function(data) {
+    $scope.spinResultList = data;
+  };
+
+  $scope.spinResultList = [{
     id: 5,
-    num: 23,
+    hitNumber: 23,
     recentHit: 4,
   }, {
     id: 4,
-    num: 4,
+    hitNumber: 4,
     recentHit: 45,
   }, {
     id: 3,
-    num: 31,
+    hitNumber: 31,
     recentHit: 256,
   }, {
     id: 2,
-    num: 10,
+    hitNumber: 10,
     recentHit: 86,
   }, {
     id: 1,
-    num: 23,
+    hitNumber: 23,
     recentHit: 12,
   }, ];
 });

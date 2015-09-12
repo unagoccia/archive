@@ -18,19 +18,19 @@ $(function() {
   });
 
   function srNumResize() {
-    var sr_w = $("#spin-result").width();
-    var sr_h = $("#spin-result").height();
+    var html_w = $("html").width();
 
-    var srImg_w = $("#spin-result-img").width();
-    var srImg_h = $("#spin-result-img").height();
-    var srNum_fontSize = srImg_w + "px";
+    var srImg_w = $("#spinResultImg").width();
+    var srImg_h = $("#spinResultImg").height();
+    var srNum_fontSize = srImg_w - 40;
 
-    var srNum_left = sr_w / 2 - (srImg_w / 4);
-    var srNum_top = -srImg_h / 7 + 10;
+    var stNum_w = srImg_w;
+    var srNum_left = html_w/2 - stNum_w/2;
+    var srNum_top = -srImg_h / 7 + 35;
 
-    $("#spin-result-num").html("5");
-    $("#spin-result-num").css("font-size", srNum_fontSize);
-    $("#spin-result-num").css("top", srNum_top);
-    $("#spin-result-num").css("left", srNum_left);
+    $("#spinResultNum").css("font-size", srNum_fontSize);
+    $("#spinResultNum").css("width", stNum_w);
+    $("#spinResultNum").css("top", srNum_top);
+    $("#spinResultNum").css("left", srNum_left);
   }
 });

@@ -9,15 +9,18 @@ class CasinoController {
   def index() {
   }
 
+  def reset() {
+    def result = casinoService.reset()
+    render result as JSON
+  }
+
   def bet() {
     casinoService.bet()
     render "bet"
   }
 
   def spin() {
-    def result = [
-      result: casinoService.spin()
-    ]
+    def result = casinoService.spin()
     render result as JSON
   }
 
