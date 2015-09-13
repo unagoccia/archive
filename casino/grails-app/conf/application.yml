@@ -79,8 +79,9 @@ endpoints:
 
 dataSource:
     pooled: true
-    jmxExport: true
-    driverClassName: org.gjt.mm.mysql.Driver
+    dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=UTF8
+    driverClassName: com.mysql.jdbc.Driver
     username: root
     password: 7hitoH1ra
 
