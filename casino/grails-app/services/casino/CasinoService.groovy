@@ -13,8 +13,8 @@ class CasinoService {
     // ベットステータスを変える際の閾値
     final def STATUS_CHANGED_TO_READY_NUM = 100
     final int STATUS_CHANGED_TO_BET_NUM = 30
-    final int STATUS_CHANGED_TO_WAIT_NUM = 100
-    final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM = 100
+    // final int STATUS_CHANGED_TO_WAIT_NUM = 100
+    // final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM = 100
     final int STATUS_CHANGED_TO_LOSE_NUM = 166
 
     def reset() {
@@ -94,7 +94,7 @@ class CasinoService {
             println stakes[0].profit
             def profit = new Profit(profit: stakes[0].profit)
             profit.save()
-            bet.profit
+            bet.profit = profit
             bet.save()
             map.put("status", "-")
           }else if(currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_READY_NUM) {
@@ -102,12 +102,12 @@ class CasinoService {
             bet.save()
             map.put("id", bet.id)
             map.put("status", Bet.STATUS_READY)
-          } else if(currentStatus.equals(Bet.STATUS_WAIT) && spinResult.recentHit <= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM) {
-            bet = Bet.get(map.get("id"))
-            bet.status = Bet.STATUS_BET
-            bet.save()
-            map.put("spinNum", STATUS_CHANGED_TO_WAIT_NUM + 1) //回転数はWAITにした際の回転数から再開
-            map.put("status", Bet.STATUS_BET)
+          // } else if(currentStatus.equals(Bet.STATUS_WAIT) && spinResult.recentHit <= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM) {
+          //   bet = Bet.get(map.get("id"))
+          //   bet.status = Bet.STATUS_BET
+          //   bet.save()
+          //   map.put("spinNum", STATUS_CHANGED_TO_WAIT_NUM + 1) //回転数はWAITにした際の回転数から再開
+          //   map.put("status", Bet.STATUS_BET)
           }
         } else {
           if(currentStatus.equals(Bet.STATUS_READY) && spinNum == STATUS_CHANGED_TO_BET_NUM) {
@@ -115,11 +115,11 @@ class CasinoService {
             bet.status = Bet.STATUS_BET
             bet.save()
             map.put("status", Bet.STATUS_BET)
-            } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum == STATUS_CHANGED_TO_WAIT_NUM) {
-              bet = Bet.get(map.get("id"))
-              bet.status = Bet.STATUS_WAIT
-              bet.save()
-              map.put("status", Bet.STATUS_WAIT)
+            // } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum == STATUS_CHANGED_TO_WAIT_NUM) {
+            //   bet = Bet.get(map.get("id"))
+            //   bet.status = Bet.STATUS_WAIT
+            //   bet.save()
+            //   map.put("status", Bet.STATUS_WAIT)
             } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum == STATUS_CHANGED_TO_LOSE_NUM) {
               bet = Bet.get(map.get("id"))
               bet.status = Bet.STATUS_LOSE

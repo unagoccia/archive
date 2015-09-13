@@ -15,7 +15,7 @@ class CasinoController {
     def result = [
       result: autoMode
     ]
-
+    println "chaneMode:" + autoMode
     render result as JSON
   }
 
