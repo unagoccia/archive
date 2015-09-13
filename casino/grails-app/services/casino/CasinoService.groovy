@@ -2,6 +2,7 @@ package casino
 
 import grails.transaction.Transactional
 import grails.converters.*
+import static grails.async.Promises.*
 
 @Transactional
 class CasinoService {
@@ -65,7 +66,7 @@ class CasinoService {
         if(mapNum.equals(spinResultNum)) {
           def recentHit = map.get("spinNum") + 1
           spinResult = new SpinResult(hitNumber: spinResultNum, recentHit: recentHit)
-          spinResult.save(flush: true)
+          spinResult.save()
           spinNum = 0
         } else {
           spinNum = map.get("spinNum") + 1
@@ -73,45 +74,64 @@ class CasinoService {
         map.put("spinNum", spinNum)
 
         // ベット判定
+        def bet
         String currentStatus = map.get("status")
         if(mapNum.equals(spinResultNum)) {
           if(currentStatus.equals(Bet.STATUS_READY)) {
-           bet = Bet.get(map.get(id))
+           bet = Bet.get(map.get("id"))
            bet.status = Bet.STATUS_NO_BET
            bet.spinResult = spinResult
-           bet.save(flush: true)
+           bet.save()
            map.put("status", "-")
          } else if(currentStatus.equals(Bet.STATUS_BET)) {
-            bet = Bet.get(map.get(id))
+            bet = Bet.get(map.get("id"))
             bet.status = Bet.STATUS_WIN
             bet.spinResult = spinResult
-            // TODO 利益入力
-            // bet.profit =
-            bet.save(flush: true)
+            def stakes = Stakes.withCriteria {
+              eq('spinNum', spinResult.recentHit)
+            }
+            println stakes
+            println stakes[0].profit
+            def profit = new Profit(profit: stakes[0].profit)
+            profit.save()
+            bet.profit
+            bet.save()
             map.put("status", "-")
           }else if(currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_READY_NUM) {
             bet = new Bet(betNumber: map.get("num"), status: Bet.STATUS_READY)
-            bet.save(flush: true)
+            bet.save()
             map.put("id", bet.id)
             map.put("status", Bet.STATUS_READY)
           } else if(currentStatus.equals(Bet.STATUS_WAIT) && spinResult.recentHit <= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM) {
-            bet = Bet.get(map.get(id))
+            bet = Bet.get(map.get("id"))
             bet.status = Bet.STATUS_BET
-            bet.save(flush: true)
+            bet.save()
+            map.put("spinNum", STATUS_CHANGED_TO_WAIT_NUM + 1) //回転数はWAITにした際の回転数から再開
             map.put("status", Bet.STATUS_BET)
           }
         } else {
-          if(currentStatus.equals(Bet.STATUS_READY) && spinNum >= STATUS_CHANGED_TO_BET_NUM) {
+          if(currentStatus.equals(Bet.STATUS_READY) && spinNum == STATUS_CHANGED_TO_BET_NUM) {
             bet = Bet.get(map.get("id"))
             bet.status = Bet.STATUS_BET
-            bet.save(flush: true)
+            bet.save()
             map.put("status", Bet.STATUS_BET)
-          } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum >= STATUS_CHANGED_TO_WAIT_NUM) {
-            bet = Bet.get(map.get(id))
-            bet.status = Bet.STATUS_WAIT
-            bet.save(flush: true)
-            map.put("status", Bet.STATUS_WAIT)
-          }
+            } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum == STATUS_CHANGED_TO_WAIT_NUM) {
+              bet = Bet.get(map.get("id"))
+              bet.status = Bet.STATUS_WAIT
+              bet.save()
+              map.put("status", Bet.STATUS_WAIT)
+            } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum == STATUS_CHANGED_TO_LOSE_NUM) {
+              bet = Bet.get(map.get("id"))
+              bet.status = Bet.STATUS_LOSE
+              def stakes = Stakes.withCriteria {
+                eq('spinNum', spinNum)
+              }
+              def profit = new Profit(profit: -stakes[0].stakesTotal)
+              profit.save()
+              bet.profit
+              bet.save()
+              map.put("status", "-")
+            }
         }
       }
 

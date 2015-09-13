@@ -13,13 +13,22 @@ casinoApp.controller("GameController", function($scope, $http) {
   $scope.spinResultNum = "－";
 
   $scope.autoModeChange = function() {
-    if($scope.isAuto) {
-      $scope.autoMode = "OFF";
-      $scope.isAuto = false;
-    } else {
-      $scope.autoMode = "ON";
-      $scope.isAuto = true;
-    }
+    $http.get("casino/autoModeChange").success( function( data ) {
+      if($scope.isAuto) {
+        $scope.autoMode = "OFF";
+      } else {
+        $scope.autoMode = "ON";
+      }
+      $scope.isAuto = data.result;
+
+      if($scope.isAuto) {
+        $scope.auto();
+      }
+    });
+  };
+
+  $scope.auto = function() {
+    $http.get("casino/auto");
   };
 
   $scope.spin = function() {

@@ -46,12 +46,12 @@
       </div>
 
       <div id="operationBtn">
-        <button id="spin-btn" class="btn btn-primary" ng-click="reset()">RESET</button>
+        <button id="spin-btn" class="btn btn-primary" ng-disabled="isAuto" ng-click="reset()">RESET</button>
         <button id="auto-btn" class="btn" ng-class="{'btn-success': isAuto, 'btn-default': !isAuto}" ng-click="autoModeChange()">AUTO / {{autoMode}}</button>
-        <button id="bet-btn" class="btn btn-danger">BET</button>
-        <button id="spin-btn" class="btn btn-warning" ng-click="spin()">SPIN</button>
+        <button id="bet-btn" class="btn btn-danger" ng-disabled="isAuto">BET</button>
+        <button id="spin-btn" class="btn btn-warning" ng-disabled="isAuto" ng-click="spin()">SPIN</button>
         <br>
-        <label>
+        <label >
           <input type="checkbox" name="not-bet-newly-any-more" value="true"> not bet newly any more.</input>
         </label>
       </div>

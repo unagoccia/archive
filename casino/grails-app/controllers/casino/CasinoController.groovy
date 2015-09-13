@@ -5,8 +5,18 @@ import grails.converters.*
 class CasinoController {
 
   def casinoService
+  Boolean autoMode = false
 
   def index() {
+  }
+
+  def autoModeChange() {
+    autoMode = !autoMode
+    def result = [
+      result: autoMode
+    ]
+
+    render result as JSON
   }
 
   def reset() {
@@ -22,6 +32,14 @@ class CasinoController {
   def spin() {
     def result = casinoService.spin()
     render result as JSON
+  }
+
+  def auto() {
+    render status:200
+
+    while(autoMode) {
+      casinoService.spin()
+    }
   }
 
 }

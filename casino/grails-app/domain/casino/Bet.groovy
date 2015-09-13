@@ -43,6 +43,11 @@ class Bet {
     /**
      * 負け
      */
+    public static final String STATUS_WIN = "WIN"
+
+    /**
+     * 負け
+     */
     public static final String STATUS_LOSE = "LOSE"
 
     /**
