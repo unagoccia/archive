@@ -39,10 +39,6 @@ class CasinoService {
     }
 
     def spin() {
-      Bet bet = new Bet()
-      bet.betNumber = 1
-      bet.status = Bet.STATUS_READY
-      println bet.save(flush: true)
       String space = " "
       String cmd = "cmd /c " + casinoProperties.get(casinoProperties.UWSC_EXE) + space + casinoProperties.get(casinoProperties.UWSC_SCRIPT_DIR) + "spinAndResult.uws" + space + casinoProperties.get(casinoProperties.SPIN_RESULT_FILE)
       Process p = cmd.execute()
