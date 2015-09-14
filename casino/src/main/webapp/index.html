@@ -74,10 +74,10 @@
             <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.status}}</td>
           </tr>
           <tr>
-            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.spinNum}}</td>
+            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.currentSpinNum}}</td>
           </tr>
           <tr>
-            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.stakes}}</td>
+            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.nextStakes}}</td>
           </tr>
         </tbody>
         <thead>
@@ -90,10 +90,10 @@
             <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.status}}</td>
           </tr>
           <tr>
-            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.spinNum}}</td>
+            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.currentSpinNum}}</td>
           </tr>
           <tr>
-            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.stakes}}</td>
+            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.nextStakes}}</td>
           </tr>
         </tbody>
       </table>

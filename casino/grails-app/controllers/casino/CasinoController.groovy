@@ -42,4 +42,9 @@ class CasinoController {
     }
   }
 
+  def getBetList() {
+    def result = casinoService.getBetList()
+    render result as JSON
+  }
+
 }

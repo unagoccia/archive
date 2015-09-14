@@ -21,8 +21,13 @@ casinoApp.controller("GameController", function($scope, $http) {
       }
       $scope.isAuto = data.result;
 
+      var betTableCtrlScope = angular.element(betTable).scope();
       if($scope.isAuto) {
         $scope.auto();
+        betTableCtrlScope.intervalUpdateRun();
+      } else {
+        betTableCtrlScope.intervalUpdateStop();
+        betTableCtrlScope.getBetListAndUpdate();
       }
     });
   };
@@ -55,197 +60,43 @@ casinoApp.controller("GameController", function($scope, $http) {
   };
 });
 
-casinoApp.controller("BetTableController", function($scope) {
+casinoApp.controller("BetTableController", function($scope, $http, $interval) {
+  var time;
+  $scope.bets = [];
+  for(var i=0; i<=36; i++) {
+      $scope.bets[i] = {
+        num:            i,
+        status:         "-",
+        currentSpinNum: "0",
+        nextStakes:     "-"
+      };
+  }
+
   $scope.update = function(data) {
     $scope.bets = data;
   };
 
-  $scope.bets = [{
-    num:      "0",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "1",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "2",
-    status:   "BET",
-    spinNum:  "126",
-    stakes:   "$83.2"
-  }, {
-    num:      "3",
-    status:   "BET",
-    spinNum:  "47",
-    stakes:   "$5.8"
-  }, {
-    num:      "4",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "5",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "6",
-    status:   "BET",
-    spinNum:  "89",
-    stakes:   "$24.7"
-  }, {
-    num:      "7",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "8",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "9",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "10",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "11",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "12",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "13",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "14",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "15",
-    status:   "BET",
-    spinNum:  "7",
-    stakes:   "$0.7"
-  }, {
-    num:      "16",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "17",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "18",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "19",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "20",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "21",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "22",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "23",
-    status:   "BET",
-    spinNum:  "10",
-    stakes:   "$1.0"
-  }, {
-    num:      "24",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "25",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "26",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "27",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "28",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "29",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "30",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "31",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "32",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "33",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "34",
-    status:   "BET",
-    spinNum:  "1",
-    stakes:   "$0.1"
-  }, {
-    num:      "35",
-    status:   "-",
-    spinNum:  "-",
-    stakes:   "-"
-  }, {
-    num:      "36",
-    status:   "BET",
-    spinNum:  "52",
-    stakes:   "$7.1"
-  }, ];
+  $scope.getBetListAndUpdate = function() {
+    $http.get("casino/getBetList").success( function( data ) {
+      $scope.update(data);
+    });
+  };
+
+  $scope.intervalUpdateRun = function(){
+    time = $interval(function () {
+      $scope.getBetListAndUpdate();
+    }, 10000);
+  };
+  $scope.intervalUpdateStop = function() {
+    if (angular.isDefined(time)) {
+      $interval.cancel(time);
+      time = undefined;
+    }
+  };
+  $scope.$on('$destroy', function() {
+    $scope.intervalUpdateStop();
+  });
+
 });
 
 casinoApp.controller("SpinResultTableController", function($scope) {

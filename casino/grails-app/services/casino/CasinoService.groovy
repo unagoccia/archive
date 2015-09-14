@@ -9,13 +9,16 @@ class CasinoService {
     CasinoProperties casinoProperties = new CasinoProperties()
     HashMap<String,Integer> recentSpinRecordMap = new HashMap<String,Integer>()
     List<HashMap> betList = new ArrayList<HashMap>()
+    HashMap<String, String> loseMap = new HashMap<String, String>() //loosMap(key:number, value:betID)
 
     // ベットステータスを変える際の閾値
-    final def STATUS_CHANGED_TO_READY_NUM = 100
-    final int STATUS_CHANGED_TO_BET_NUM = 30
+    // final def STATUS_CHANGED_TO_READY_NUM = 100
+    // final int STATUS_CHANGED_TO_BET_NUM = 30
+    final int STATUS_CHANGED_TO_BET_NUM = 200
     // final int STATUS_CHANGED_TO_WAIT_NUM = 100
     // final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM = 100
     final int STATUS_CHANGED_TO_LOSE_NUM = 166
+    final int BET_AGAIN_MAX = 15;
 
     def reset() {
       betList = new ArrayList<HashMap>();
@@ -24,9 +27,9 @@ class CasinoService {
         betObjMap.put("id", null)
         betObjMap.put("num", i)
         betObjMap.put("status", "-")
-        betObjMap.put("spinNum", 0)
-        betObjMap.put("stakes", "-")
-        betObjMap.put("recentHit", "-")
+        betObjMap.put("currentSpinNum", 0)
+        betObjMap.put("nextStakes", "-")
+        betObjMap.put("betAgainNum", 0)
         betList.add(betObjMap)
       }
       return betList
@@ -58,80 +61,158 @@ class CasinoService {
       }
 
       // ベットリスト更新
-      for(HashMap map : betList){
+      for(HashMap betData : betList){
         //現在の回転数 & 当たりまでの回転の更新
-        def spinNum
-        String mapNum =  map.get("num")
+        def currentSpinNum
         def spinResult
-        if(mapNum.equals(spinResultNum)) {
-          def recentHit = map.get("spinNum") + 1
+        String betDataNum = betData.get("num")
+        if(betDataNum.equals(spinResultNum)) {
+          def recentHit = betData.get("currentSpinNum") + 1
           spinResult = new SpinResult(hitNumber: spinResultNum, recentHit: recentHit)
           spinResult.save()
-          spinNum = 0
+          currentSpinNum = 0
         } else {
-          spinNum = map.get("spinNum") + 1
+          currentSpinNum = betData.get("currentSpinNum") + 1
         }
-        map.put("spinNum", spinNum)
+        betData.put("currentSpinNum", currentSpinNum)
+
+        def bet
+        // 負けの回転結果を記録
+        if(loseMap.containsKey(spinResultNum)) {
+          bet = Bet.get(loseMap.get(spinResultNum))
+          bet.spinResult = spinResult
+          bet.save()
+          loseMap.remove(spinResultNum)
+        }
 
         // ベット判定
-        def bet
-        String currentStatus = map.get("status")
-        if(mapNum.equals(spinResultNum)) {
-          if(currentStatus.equals(Bet.STATUS_READY)) {
-           bet = Bet.get(map.get("id"))
-           bet.status = Bet.STATUS_NO_BET
-           bet.spinResult = spinResult
-           bet.save()
-           map.put("status", "-")
-         } else if(currentStatus.equals(Bet.STATUS_BET)) {
-            bet = Bet.get(map.get("id"))
+        String currentStatus = betData.get("status")
+        if(betDataNum.equals(spinResultNum)) {
+          if(currentStatus.equals(Bet.STATUS_BET)) {
+            bet = Bet.get(betData.get("id"))
             bet.status = Bet.STATUS_WIN
             bet.spinResult = spinResult
             def stakes = Stakes.withCriteria {
               eq('spinNum', spinResult.recentHit)
             }
-            println stakes
-            println stakes[0].profit
             def profit = new Profit(profit: stakes[0].profit)
             profit.save()
             bet.profit = profit
             bet.save()
-            map.put("status", "-")
-          }else if(currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_READY_NUM) {
-            bet = new Bet(betNumber: map.get("num"), status: Bet.STATUS_READY)
+
+            // 再ベット判定
+            def betAgainNum = betData.get("betAgainNum")
+            if(betAgainNum <= BET_AGAIN_MAX) {
+              bet = new Bet(betNumber: betDataNum, status: Bet.STATUS_BET)
+              bet.save()
+              betData.put("id", bet.id)
+              betData.put("status", Bet.STATUS_BET)
+              betAgainNum++
+              betData.put("betAgainNum", betAgainNum)
+            } else {
+              betData.put("id", null)
+              betData.put("status", "-")
+              betData.put("betAgainNum", 0)
+            }
+          }else if(currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_BET_NUM) {
+            bet = new Bet(betNumber: betDataNum, status: Bet.STATUS_BET)
             bet.save()
-            map.put("id", bet.id)
-            map.put("status", Bet.STATUS_READY)
-          // } else if(currentStatus.equals(Bet.STATUS_WAIT) && spinResult.recentHit <= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM) {
-          //   bet = Bet.get(map.get("id"))
-          //   bet.status = Bet.STATUS_BET
-          //   bet.save()
-          //   map.put("spinNum", STATUS_CHANGED_TO_WAIT_NUM + 1) //回転数はWAITにした際の回転数から再開
-          //   map.put("status", Bet.STATUS_BET)
+            betData.put("id", bet.id)
+            betData.put("status", Bet.STATUS_BET)
+            def betAgainNum = betData.get("betAgainNum") + 1
+            betData.put("betAgainNum", betAgainNum)
           }
         } else {
-          if(currentStatus.equals(Bet.STATUS_READY) && spinNum == STATUS_CHANGED_TO_BET_NUM) {
-            bet = Bet.get(map.get("id"))
-            bet.status = Bet.STATUS_BET
-            bet.save()
-            map.put("status", Bet.STATUS_BET)
-            // } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum == STATUS_CHANGED_TO_WAIT_NUM) {
-            //   bet = Bet.get(map.get("id"))
-            //   bet.status = Bet.STATUS_WAIT
-            //   bet.save()
-            //   map.put("status", Bet.STATUS_WAIT)
-            } else if(currentStatus.equals(Bet.STATUS_BET) && spinNum == STATUS_CHANGED_TO_LOSE_NUM) {
-              bet = Bet.get(map.get("id"))
-              bet.status = Bet.STATUS_LOSE
-              def stakes = Stakes.withCriteria {
-                eq('spinNum', spinNum)
-              }
-              def profit = new Profit(profit: -stakes[0].stakesTotal)
-              profit.save()
-              bet.profit
-              bet.save()
-              map.put("status", "-")
+          if(currentStatus.equals(Bet.STATUS_BET) && currentSpinNum == STATUS_CHANGED_TO_LOSE_NUM) {
+            bet = Bet.get(betData.get("id"))
+            bet.status = Bet.STATUS_LOSE
+            def stakes = Stakes.withCriteria {
+              eq('spinNum', currentSpinNum)
             }
+            def profit = new Profit(profit: -stakes[0].stakesTotal)
+            profit.save()
+            bet.profit
+            bet.save()
+            loseMap.put(betDataNum, betData.get("id"))
+            betData.put("id", null)
+            betData.put("status", "-")
+            betData.put("betAgainNum", 0)
+          }
+        }
+
+
+// ============================old bet judge=======================================//
+        // def bet
+        // String currentStatus = betData.get("status")
+        // if(betDataNum.equals(spinResultNum)) {
+        //   if(currentStatus.equals(Bet.STATUS_READY)) {
+        //    bet = Bet.get(betData.get("id"))
+        //    bet.status = Bet.STATUS_NO_BET
+        //    bet.spinResult = spinResult
+        //    bet.save()
+        //    betData.put("status", "-")
+        //  } else if(currentStatus.equals(Bet.STATUS_BET)) {
+        //     bet = Bet.get(betData.get("id"))
+        //     bet.status = Bet.STATUS_WIN
+        //     bet.spinResult = spinResult
+        //     def stakes = Stakes.withCriteria {
+        //       eq('spinNum', spinResult.recentHit)
+        //     }
+        //     def profit = new Profit(profit: stakes[0].profit)
+        //     profit.save()
+        //     bet.profit = profit
+        //     bet.save()
+        //     betData.put("status", "-")
+        //   }else if(currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_READY_NUM) {
+        //     bet = new Bet(betNumber: betDataNum, status: Bet.STATUS_READY)
+        //     bet.save()
+        //     betData.put("id", bet.id)
+        //     betData.put("status", Bet.STATUS_READY)
+        //   // } else if(currentStatus.equals(Bet.STATUS_WAIT) && spinResult.recentHit <= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM) {
+        //   //   bet = Bet.get(betData.get("id"))
+        //   //   bet.status = Bet.STATUS_BET
+        //   //   bet.save()
+        //   //   betData.put("currentSpinNum", STATUS_CHANGED_TO_WAIT_NUM + 1) //回転数はWAITにした際の回転数から再開
+        //   //   betData.put("status", Bet.STATUS_BET)
+        //   }
+        // } else {
+        //   if(currentStatus.equals(Bet.STATUS_READY) && currentSpinNum == STATUS_CHANGED_TO_BET_NUM) {
+        //     bet = Bet.get(betData.get("id"))
+        //     bet.status = Bet.STATUS_BET
+        //     bet.save()
+        //     betData.put("status", Bet.STATUS_BET)
+        //     // } else if(currentStatus.equals(Bet.STATUS_BET) && currentSpinNum == STATUS_CHANGED_TO_WAIT_NUM) {
+        //     //   bet = Bet.get(betData.get("id"))
+        //     //   bet.status = Bet.STATUS_WAIT
+        //     //   bet.save()
+        //     //   betData.put("status", Bet.STATUS_WAIT)
+        //     } else if(currentStatus.equals(Bet.STATUS_BET) && currentSpinNum == STATUS_CHANGED_TO_LOSE_NUM) {
+        //       bet = Bet.get(betData.get("id"))
+        //       bet.status = Bet.STATUS_LOSE
+        //       def stakes = Stakes.withCriteria {
+        //         eq('spinNum', currentSpinNum)
+        //       }
+        //       def profit = new Profit(profit: -stakes[0].stakesTotal)
+        //       profit.save()
+        //       bet.profit
+        //       bet.save()
+        //       betData.put("status", "-")
+        //       loseMap.put(betDataNum, betData.get("id"))
+        //     }
+        // }
+// ============================old=======================================//
+
+        // 次ベット金額の更新
+        if(currentStatus.equals(Bet.STATUS_BET)) {
+          def nextSpinNum = betData.get("currentSpinNum")+1
+          if(betDataNum.equals(spinResultNum)) {
+            betData.put("nextStakes", "-")
+          } else {
+            def stakes = Stakes.withCriteria {
+              eq('spinNum', nextSpinNum)
+            }
+            betData.put("nextStakes", stakes[0].stakes)
+          }
         }
       }
 
@@ -146,8 +227,12 @@ class CasinoService {
       return result
     }
 
-    def updateBetStatus() {
-
+    def getBetList() {
+      // ベットリストがnullだったらリセット
+      if(!betList) {
+        reset()
+      }
+      return betList
     }
 
 }
