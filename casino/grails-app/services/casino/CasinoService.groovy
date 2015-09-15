@@ -17,8 +17,8 @@ class CasinoService {
     final int STATUS_CHANGED_TO_BET_NUM = 200
     // final int STATUS_CHANGED_TO_WAIT_NUM = 100
     // final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM = 100
-    final int STATUS_CHANGED_TO_LOSE_NUM = 166
-    final int BET_AGAIN_MAX = 15;
+    final int STATUS_CHANGED_TO_LOSE_NUM = 180
+    final int BET_AGAIN_MAX_SPIN = 300;
 
     def reset() {
       betList = new ArrayList<HashMap>();
@@ -29,7 +29,7 @@ class CasinoService {
         betObjMap.put("status", "-")
         betObjMap.put("currentSpinNum", 0)
         betObjMap.put("nextStakes", "-")
-        betObjMap.put("betAgainNum", 0)
+        betAgain.put("spinNumFromFirstBet",0)
         betList.add(betObjMap)
       }
       return betList
@@ -44,7 +44,7 @@ class CasinoService {
 
     def spin() {
       String space = " "
-      String cmd = "cmd /c " + casinoProperties.get(casinoProperties.UWSC_EXE) + space + casinoProperties.get(casinoProperties.UWSC_SCRIPT_DIR) + "spinAndResult.uws" + space + casinoProperties.get(casinoProperties.SPIN_RESULT_FILE)
+      String cmd = "cmd /c " + casinoProperties.get(casinoProperties.UWSC_EXE) + space + casinoProperties.get(casinoProperties.UWSC_SCRIPT_DIR) + "spinAndResult.uws" + space + casinoProperties.get(casinoProperties.SPIN_RESULT_FILE) + space + casinoProperties.get(casinoProperties.UWSC_IMAGE_DIR)
       Process p = cmd.execute()
       p.waitFor();
 
@@ -88,6 +88,7 @@ class CasinoService {
         // ベット判定
         String currentStatus = betData.get("status")
         if(betDataNum.equals(spinResultNum)) {
+          int spinNumFromFirstBet = betData.get("spinNumFromFirstBet")
           if(currentStatus.equals(Bet.STATUS_BET)) {
             bet = Bet.get(betData.get("id"))
             bet.status = Bet.STATUS_WIN
@@ -100,32 +101,34 @@ class CasinoService {
             bet.profit = profit
             bet.save()
 
+            spinNumFromFirstBet = spinNumFromFirstBet + spinResult.recentHit
+
             // 再ベット判定
-            def betAgainNum = betData.get("betAgainNum")
-            if(betAgainNum <= BET_AGAIN_MAX) {
+            if(spinNumFromFirstBet <= BET_AGAIN_MAX_SPIN) {
               bet = new Bet(betNumber: betDataNum, status: Bet.STATUS_BET)
               bet.save()
               betData.put("id", bet.id)
               betData.put("status", Bet.STATUS_BET)
-              betAgainNum++
-              betData.put("betAgainNum", betAgainNum)
+              spinNumFromFirstBet++
+              betData.put("spinNumFromFirstBet", spinNumFromFirstBet)
             } else {
               betData.put("id", null)
               betData.put("status", "-")
-              betData.put("betAgainNum", 0)
+              betData.put("spinNumFromFirstBet", 0)
             }
-          }else if(currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_BET_NUM) {
+          } else if(currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_BET_NUM) {
             bet = new Bet(betNumber: betDataNum, status: Bet.STATUS_BET)
             bet.save()
             betData.put("id", bet.id)
             betData.put("status", Bet.STATUS_BET)
-            def betAgainNum = betData.get("betAgainNum") + 1
-            betData.put("betAgainNum", betAgainNum)
+            spinNumFromFirstBet++
+            betData.put("spinNumFromFirstBet", spinNumFromFirstBet)
           }
         } else {
           if(currentStatus.equals(Bet.STATUS_BET) && currentSpinNum == STATUS_CHANGED_TO_LOSE_NUM) {
             bet = Bet.get(betData.get("id"))
             bet.status = Bet.STATUS_LOSE
+            bet.spinResult = spinResult
             def stakes = Stakes.withCriteria {
               eq('spinNum', currentSpinNum)
             }
@@ -133,10 +136,11 @@ class CasinoService {
             profit.save()
             bet.profit
             bet.save()
-            loseMap.put(betDataNum, betData.get("id"))
+            def loseBetID = betData.get("id")
+            loseMap.put(betDataNum, loseBetID)
             betData.put("id", null)
             betData.put("status", "-")
-            betData.put("betAgainNum", 0)
+            betData.put("spinNumFromFirstBet", 0)
           }
         }
 
@@ -216,8 +220,8 @@ class CasinoService {
         }
       }
 
-      def spinResultList = SpinResult.list(sort:"id", order:"desc", max:5)
 
+      def spinResultList = getSpinResultList()
       def result = [
         spinResultNum: spinResultNum,
         betList: betList,
@@ -233,6 +237,27 @@ class CasinoService {
         reset()
       }
       return betList
+    }
+
+    def getSpinResultList() {
+      def spinResultList = SpinResult.list(sort:"id", order:"desc", max:5)
+      return spinResultList
+    }
+
+    def getProfitList() {
+      def profitList = Profit.list(sort:"id", order:"desc", max:5)
+      return profitList
+    }
+
+    def getMonthlyProfitList() {
+      def monthlyProfitList = Profit.withCriteria {
+        projections {
+          sum('profit')
+          groupProperty('year')
+          groupProperty('month')
+        }
+      }
+      return monthlyProfitList
     }
 
 }

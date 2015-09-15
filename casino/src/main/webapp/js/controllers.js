@@ -22,12 +22,27 @@ casinoApp.controller("GameController", function($scope, $http) {
       $scope.isAuto = data.result;
 
       var betTableCtrlScope = angular.element(betTable).scope();
+      var spinResultHistoryTableCtrlScope = angular.element(spinResultHistoryTable).scope();
+      var profitTableCtrlScope = angular.element(profitTable).scope();
+      var monthlyProfitTableCtrlScope = angular.element(monthlyProfitTable).scope();
       if($scope.isAuto) {
         $scope.auto();
+
+        // 各テーブルの自動更新開始
         betTableCtrlScope.intervalUpdateRun();
+        spinResultHistoryTableCtrlScope.intervalUpdateRun();
+        profitTableCtrlScope.intervalUpdateRun();
+        monthlyProfitTableCtrlScope.intervalUpdateRun();
       } else {
+        // 各テーブルの自動更新停止
         betTableCtrlScope.intervalUpdateStop();
         betTableCtrlScope.getBetListAndUpdate();
+        spinResultHistoryTableCtrlScope.intervalUpdateStop();
+        spinResultHistoryTableCtrlScope.getSpinResultListAndUpdate();
+        profitTableCtrlScope.intervalUpdateStop();
+        profitTableCtrlScope.getPeofitListAndUpdate();
+        monthlyProfitTableCtrlScope.intervalUpdateStop();
+        monthlyProfitTableCtrlScope.getMonthlyPeofitListAndUpdate();
       }
     });
   };
@@ -87,97 +102,119 @@ casinoApp.controller("BetTableController", function($scope, $http, $interval) {
       $scope.getBetListAndUpdate();
     }, 10000);
   };
+
   $scope.intervalUpdateStop = function() {
     if (angular.isDefined(time)) {
       $interval.cancel(time);
       time = undefined;
     }
   };
+
   $scope.$on('$destroy', function() {
     $scope.intervalUpdateStop();
   });
 
 });
 
-casinoApp.controller("SpinResultTableController", function($scope) {
+casinoApp.controller("SpinResultTableController", function($scope, $http, $interval) {
+  var time;
+  $scope.spinResultList = [];
+
   $scope.update = function(data) {
     $scope.spinResultList = data;
   };
 
-  $scope.spinResultList = [{
-    id: 5,
-    hitNumber: 23,
-    recentHit: 4,
-  }, {
-    id: 4,
-    hitNumber: 4,
-    recentHit: 45,
-  }, {
-    id: 3,
-    hitNumber: 31,
-    recentHit: 256,
-  }, {
-    id: 2,
-    hitNumber: 10,
-    recentHit: 86,
-  }, {
-    id: 1,
-    hitNumber: 23,
-    recentHit: 12,
-  }, ];
+  $scope.getSpinResultListAndUpdate = function() {
+    $http.get("casino/getSpinResultList").success( function( data ) {
+      $scope.update(data);
+    });
+  };
+
+  $scope.intervalUpdateRun = function(){
+    time = $interval(function () {
+      $scope.getSpinResultListAndUpdate();
+    }, 10000);
+  };
+
+  $scope.intervalUpdateStop = function() {
+    if (angular.isDefined(time)) {
+      $interval.cancel(time);
+      time = undefined;
+    }
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.intervalUpdateStop();
+  });
+
 });
 
-casinoApp.controller("ProfitTableController", function($scope) {
-  $scope.profits = [{
-    id: 5,
-    date: "2015/09/10",
-    num: 23,
-    recentHit: 4,
-    profit: "$3.2",
-  }, {
-    id: 4,
-    date: "2015/09/10",
-    num: 32,
-    recentHit: 45,
-    profit: "$1.6",
-  }, {
-    id: 3,
-    date: "2015/09/09",
-    num: 27,
-    recentHit: 42,
-    profit: "$2.2",
-  }, {
-    id: 2,
-    date: "2015/09/09",
-    num: 18,
-    recentHit: 86,
-    profit: "$2.7",
-  }, {
-    id: 1,
-    date: "2015/09/09",
-    num: 7,
-    recentHit: 11,
-    profit: "$3.5",
-  }, ];
+casinoApp.controller("ProfitTableController", function($scope, $http, $interval) {
+  var time;
+  $scope.profits = [];
+
+  $scope.update = function(data) {
+    $scope.profits = data;
+  };
+
+  $scope.getPeofitListAndUpdate = function() {
+    $http.get("casino/getProfitList").success( function( data ) {
+      console.log(data);
+      // $scope.update(data);
+    });
+  };
+
+  $scope.intervalUpdateRun = function(){
+    time = $interval(function () {
+      $scope.getPeofitListAndUpdate();
+    }, 10000);
+  };
+
+  $scope.intervalUpdateStop = function() {
+    if (angular.isDefined(time)) {
+      $interval.cancel(time);
+      time = undefined;
+    }
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.intervalUpdateStop();
+  });
+
 });
 
-casinoApp.controller("MonthlyProfitTableController", function($scope) {
-  $scope.monthlyProfit = [{
-    month: "2015/09",
-    mProfit: "$2,564.2",
-  }, {
-    month: "2015/08",
-    mProfit: "$11,524.7",
-  }, {
-    month: "2015/07",
-    mProfit: "$11,640.1",
-  }, {
-    month: "2015/06",
-    mProfit: "$11,920.6",
-  }, {
-    month: "2015/05",
-    mProfit: "$23,400.2",
-  }, ];
+casinoApp.controller("MonthlyProfitTableController", function($scope, $http, $interval) {
+  var time;
+  $scope.monthlyProfit = [];
+
+  $scope.update = function(data) {
+    $scope.monthlyProfit = data;
+  };
+
+  $scope.getMonthlyPeofitListAndUpdate = function() {
+    $http.get("casino/getMonthlyProfitList").success( function( data ) {
+      console.log(data);
+      // $scope.update(data);
+    });
+  };
+
+  $scope.intervalUpdateRun = function(){
+    time = $interval(function () {
+      $scope.getMonthlyPeofitListAndUpdate();
+    }, 10000);
+  };
+
+  $scope.intervalUpdateStop = function() {
+    if (angular.isDefined(time)) {
+      $interval.cancel(time);
+      time = undefined;
+    }
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.intervalUpdateStop();
+  });
+
 });
 
 // テンプレート

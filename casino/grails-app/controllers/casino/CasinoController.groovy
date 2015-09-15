@@ -47,4 +47,19 @@ class CasinoController {
     render result as JSON
   }
 
+  def getSpinResultList() {
+    def result = casinoService.getSpinResultList()
+    render result as JSON
+  }
+
+  def getProfitList() {
+    def result = casinoService.getProfitList()
+    render result as JSON
+  }
+
+  def getMonthlyProfitList() {
+    def result = casinoService.getMonthlyProfitList()
+    render result as JSON
+  }
+
 }

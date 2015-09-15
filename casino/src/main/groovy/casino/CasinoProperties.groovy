@@ -7,6 +7,7 @@ class CasinoProperties {
 
   String UWSC_EXE = "uwscEXE"
   String UWSC_SCRIPT_DIR = "uwscScriptDir"
+  String UWSC_IMAGE_DIR = "uwscImageDir"
   String SPIN_RESULT_FILE = "spinResultFile"
 
   def get(name) {
@@ -19,6 +20,9 @@ class CasinoProperties {
         break;
       case UWSC_SCRIPT_DIR:
         prp = casinoProps.getProperty('uwsc.script.dir')
+        break;
+      case UWSC_IMAGE_DIR:
+        prp = casinoProps.getProperty('uwsc.image.dir')
         break;
       case SPIN_RESULT_FILE:
         prp = casinoProps.getProperty('spin.result.file')
