@@ -10,7 +10,7 @@ class Stakes {
     /**
      * 賭け金
      */
-    float stakes
+    BigDecimal  stakes
 
     /**
      * 賭け金(累計)
@@ -24,8 +24,8 @@ class Stakes {
 
     static constraints = {
         spinNum nullable: false, blank: false, unique: true
-        stakes nullable: false, blank: false
-        stakesTotal nullable: true, blank: true
+        stakes nullable: false, blank: false, scale: 2
+        stakesTotal nullable: true, blank: true, scale: 2
         profit nullable: true, blank: true
     }
 }

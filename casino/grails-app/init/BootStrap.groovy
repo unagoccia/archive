@@ -10,17 +10,19 @@ class BootStrap {
     }
 
     def static insertStakesData(spinNum, stakes) {
-      def stakesSum
 
-      stakes = new Stakes(spinNum: spinNum, stakes: stakes).save()
-      stakesSum = Stakes.createCriteria().list {
-        projections {
-          sum('stakes')
+      if(!Stakes.findBySpinNum(spinNum)) {
+        def stakesSum
+        stakes = new Stakes(spinNum: spinNum, stakes: stakes).save()
+        stakesSum = Stakes.createCriteria().list {
+          projections {
+            sum('stakes')
+          }
         }
+        stakes.stakesTotal = stakesSum[0]
+        stakes.profit = (stakes.stakes * 36) - stakes.stakesTotal
+        stakes.save()
       }
-      stakes.stakesTotal = stakesSum[0]
-      stakes.profit = (stakes.stakes * 36) - stakes.stakesTotal
-      stakes.save()
     }
 
     def static initStakesTable() {

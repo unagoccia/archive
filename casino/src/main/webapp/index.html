@@ -137,18 +137,18 @@
           <tr>
             <th>#</th>
             <th>Date</th>
+            <th>Profit</th>
             <th>Number</th>
             <th>Recent Hit</th>
-            <th>Profit</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="profit in profits">
+          <tr ng-repeat="profit in profitList">
             <td>{{profit.id}}</td>
             <td>{{profit.date}}</td>
-            <td>{{profit.num}}</td>
-            <td>{{profit.recentHit}}</td>
             <td>{{profit.profit}}</td>
+            <td>{{profit.number}}</td>
+            <td>{{profit.recentHit}}</td>
           </tr>
         </tbody>
       </table>
@@ -170,9 +170,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="profit in monthlyProfit">
-            <td>{{profit.month}}</td>
-            <td>{{profit.mProfit}}</td>
+          <tr ng-repeat="monthlyProfit in monthlyProfitList">
+            <td>{{monthlyProfit.month}}</td>
+            <td>{{monthlyProfit.mProfit}}</td>
           </tr>
         </tbody>
       </table>

@@ -16,10 +16,10 @@ class Profit {
     /**
      * 利益
      */
-    float profit
+    BigDecimal  profit
 
     static constraints = {
-        profit nullable: false, blank: false
+        profit nullable: false, blank: false, scale: 2
     }
 
     static mapping = {

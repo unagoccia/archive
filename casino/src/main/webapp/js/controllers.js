@@ -151,16 +151,15 @@ casinoApp.controller("SpinResultTableController", function($scope, $http, $inter
 
 casinoApp.controller("ProfitTableController", function($scope, $http, $interval) {
   var time;
-  $scope.profits = [];
+  $scope.profitList = [];
 
   $scope.update = function(data) {
-    $scope.profits = data;
+    $scope.profitList = data;
   };
 
   $scope.getPeofitListAndUpdate = function() {
     $http.get("casino/getProfitList").success( function( data ) {
-      console.log(data);
-      // $scope.update(data);
+      $scope.update(data);
     });
   };
 
@@ -185,16 +184,15 @@ casinoApp.controller("ProfitTableController", function($scope, $http, $interval)
 
 casinoApp.controller("MonthlyProfitTableController", function($scope, $http, $interval) {
   var time;
-  $scope.monthlyProfit = [];
+  $scope.monthlyProfitList = [];
 
   $scope.update = function(data) {
-    $scope.monthlyProfit = data;
+    $scope.monthlyProfitList = data;
   };
 
   $scope.getMonthlyPeofitListAndUpdate = function() {
     $http.get("casino/getMonthlyProfitList").success( function( data ) {
-      console.log(data);
-      // $scope.update(data);
+      $scope.update(data);
     });
   };
 

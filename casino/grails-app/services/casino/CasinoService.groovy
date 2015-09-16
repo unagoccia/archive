@@ -21,7 +21,7 @@ class CasinoService {
     final int BET_AGAIN_MAX_SPIN = 300;
 
     def reset() {
-      betList = new ArrayList<HashMap>();
+      betList = new ArrayList<HashMap>()
       for(int i=0; i<=36; i++) {
         HashMap<String,String> betObjMap = new HashMap<String,String>()
         betObjMap.put("id", null)
@@ -29,7 +29,7 @@ class CasinoService {
         betObjMap.put("status", "-")
         betObjMap.put("currentSpinNum", 0)
         betObjMap.put("nextStakes", "-")
-        betAgain.put("spinNumFromFirstBet",0)
+        betObjMap.put("spinNumFromFirstBet",0)
         betList.add(betObjMap)
       }
       return betList
@@ -134,7 +134,7 @@ class CasinoService {
             }
             def profit = new Profit(profit: -stakes[0].stakesTotal)
             profit.save()
-            bet.profit
+            bet.profit = profit
             bet.save()
             def loseBetID = betData.get("id")
             loseMap.put(betDataNum, loseBetID)
@@ -245,8 +245,23 @@ class CasinoService {
     }
 
     def getProfitList() {
-      def profitList = Profit.list(sort:"id", order:"desc", max:5)
-      return profitList
+      def bets = Bet.withCriteria {
+        isNotNull("profit")
+        maxResults(5)
+        order("id", "desc")
+      }
+
+      def result = new ArrayList<HashMap>()
+      for (bet in bets) {
+        def tmp = new HashMap()
+        tmp.put("id", bet.profit.id)
+        tmp.put("date", bet.profit.dateCreated.format("MM/dd"))
+        tmp.put("number", bet.betNumber)
+        tmp.put("recentHit", bet.spinResult.recentHit)
+        tmp.put("profit", bet.profit.profit)
+        result.add(tmp)
+      }
+      return result
     }
 
     def getMonthlyProfitList() {
@@ -257,7 +272,15 @@ class CasinoService {
           groupProperty('month')
         }
       }
-      return monthlyProfitList
+
+      def result = new ArrayList<HashMap>()
+      for (monthlyProfit in monthlyProfitList) {
+        def tmp = new HashMap()
+        tmp.put("month", monthlyProfit[1] + "/" + monthlyProfit[2])
+        tmp.put("mProfit", monthlyProfit[0])
+        result.add(tmp)
+      }
+      return result
     }
 
 }
