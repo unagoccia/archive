@@ -7,10 +7,61 @@ casinoApp.filter('offset', function() {
   };
 });
 
+angular.element(document).ready(function() {
+  var gameCtrlScope = angular.element(gameCtrl).scope();
+  var betTableCtrlScope = angular.element(betTable).scope();
+  var spinResultHistoryTableCtrlScope = angular.element(spinResultHistoryTable).scope();
+  var profitTableCtrlScope = angular.element(profitTable).scope();
+  var monthlyProfitTableCtrlScope = angular.element(monthlyProfitTable).scope();
+
+  gameCtrlScope.isNotBeBetNewly();
+  gameCtrlScope.getAutoMode();
+  betTableCtrlScope.getBetListAndUpdate();
+  spinResultHistoryTableCtrlScope.getSpinResultListAndUpdate();
+  profitTableCtrlScope.getPeofitListAndUpdate();
+  monthlyProfitTableCtrlScope.getMonthlyPeofitListAndUpdate();
+});
+
 casinoApp.controller("GameController", function($scope, $http) {
   $scope.autoMode = "OFF";
   $scope.isAuto = false;
   $scope.spinResultNum = "－";
+
+  $scope.checkAutoUpdate = function() {
+    var betTableCtrlScope = angular.element(betTable).scope();
+    var spinResultHistoryTableCtrlScope = angular.element(spinResultHistoryTable).scope();
+    var profitTableCtrlScope = angular.element(profitTable).scope();
+    var monthlyProfitTableCtrlScope = angular.element(monthlyProfitTable).scope();
+    if($scope.isAuto) {
+      // 各テーブルの自動更新開始
+      betTableCtrlScope.intervalUpdateRun();
+      spinResultHistoryTableCtrlScope.intervalUpdateRun();
+      profitTableCtrlScope.intervalUpdateRun();
+      monthlyProfitTableCtrlScope.intervalUpdateRun();
+    } else {
+      // 各テーブルの自動更新停止
+      betTableCtrlScope.intervalUpdateStop();
+      betTableCtrlScope.getBetListAndUpdate();
+      spinResultHistoryTableCtrlScope.intervalUpdateStop();
+      spinResultHistoryTableCtrlScope.getSpinResultListAndUpdate();
+      profitTableCtrlScope.intervalUpdateStop();
+      profitTableCtrlScope.getPeofitListAndUpdate();
+      monthlyProfitTableCtrlScope.intervalUpdateStop();
+      monthlyProfitTableCtrlScope.getMonthlyPeofitListAndUpdate();
+    }
+  };
+
+  $scope.getAutoMode = function() {
+    $http.get("casino/getAutoMode").success( function( data ) {
+      $scope.isAuto = data.result;
+      if($scope.isAuto) {
+        $scope.autoMode = "ON";
+      } else {
+        $scope.autoMode = "OFF";
+      }
+      $scope.checkAutoUpdate();
+    });
+  };
 
   $scope.autoModeChange = function() {
     $http.get("casino/autoModeChange").success( function( data ) {
@@ -20,30 +71,10 @@ casinoApp.controller("GameController", function($scope, $http) {
         $scope.autoMode = "ON";
       }
       $scope.isAuto = data.result;
-
-      var betTableCtrlScope = angular.element(betTable).scope();
-      var spinResultHistoryTableCtrlScope = angular.element(spinResultHistoryTable).scope();
-      var profitTableCtrlScope = angular.element(profitTable).scope();
-      var monthlyProfitTableCtrlScope = angular.element(monthlyProfitTable).scope();
       if($scope.isAuto) {
         $scope.auto();
-
-        // 各テーブルの自動更新開始
-        betTableCtrlScope.intervalUpdateRun();
-        spinResultHistoryTableCtrlScope.intervalUpdateRun();
-        profitTableCtrlScope.intervalUpdateRun();
-        monthlyProfitTableCtrlScope.intervalUpdateRun();
-      } else {
-        // 各テーブルの自動更新停止
-        betTableCtrlScope.intervalUpdateStop();
-        betTableCtrlScope.getBetListAndUpdate();
-        spinResultHistoryTableCtrlScope.intervalUpdateStop();
-        spinResultHistoryTableCtrlScope.getSpinResultListAndUpdate();
-        profitTableCtrlScope.intervalUpdateStop();
-        profitTableCtrlScope.getPeofitListAndUpdate();
-        monthlyProfitTableCtrlScope.intervalUpdateStop();
-        monthlyProfitTableCtrlScope.getMonthlyPeofitListAndUpdate();
       }
+      $scope.checkAutoUpdate();
     });
   };
 
@@ -71,6 +102,18 @@ casinoApp.controller("GameController", function($scope, $http) {
     $http.get("casino/reset").success( function( data ) {
       var betTableCtrlScope = angular.element(betTable).scope();
       betTableCtrlScope.update(data);
+    });
+  };
+
+  $scope.isNotBeBetNewly = function() {
+    $http.get("casino/isNotBeBetNewly").success( function( data ) {
+      $scope.notBeBetNewly = data.result;
+    });
+  };
+
+  $scope.notBeBetNewlyChange = function() {
+    $http.get("casino/notBeBetNewlyChange").success( function( data ) {
+      $scope.notBeBetNewly = data.result;
     });
   };
 });

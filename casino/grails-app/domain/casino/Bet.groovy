@@ -61,4 +61,8 @@ class Bet {
         spinResult unique: true, nullable: true, blank: true
         profit unique: true, nullable: true, blank: true
     }
+
+    static mapping = {
+      betNumber index: true
+    }
 }

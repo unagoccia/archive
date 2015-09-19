@@ -10,6 +10,30 @@ class CasinoController {
   def index() {
   }
 
+  def isNotBeBetNewly() {
+    def notBeBetNewly = casinoService.isNotBeBetNewly()
+    def result = [
+      result: notBeBetNewly
+    ]
+    render result as JSON
+  }
+
+  def notBeBetNewlyChange() {
+    def notBeBetNewly = casinoService.notBeBetNewlyChange()
+    def result = [
+      result: notBeBetNewly
+    ]
+    println "notBeBetNewly:" + notBeBetNewly
+    render result as JSON
+  }
+
+  def getAutoMode() {
+    def result = [
+      result: autoMode
+    ]
+    render result as JSON
+  }
+
   def autoModeChange() {
     autoMode = !autoMode
     def result = [

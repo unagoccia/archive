@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" ng-app="casinoApp">
 
 <head>
   <meta charset="UTF-8">
@@ -37,9 +37,8 @@
 </head>
 
 <body>
-  <div ng-app="casinoApp" class="ng-scope">
-
-    <div ng-controller="GameController">
+  <div>
+    <div id="gameCtrl" ng-controller="GameController">
       <div id="spinResult">
         <img id="spinResultImg" src="img/pop.png">
         <div id="spinResultNum">{{spinResultNum}}</div>
@@ -52,7 +51,7 @@
         <button id="spin-btn" class="btn btn-warning" ng-disabled="isAuto" ng-click="spin()">SPIN</button>
         <br>
         <label >
-          <input type="checkbox" name="not-bet-newly-any-more" value="true"> not bet newly any more.</input>
+          <input type="checkbox" ng-model="notBeBetNewly" ng-change="notBeBetNewlyChange()"> not be bet newly.</input>
         </label>
       </div>
     </div>

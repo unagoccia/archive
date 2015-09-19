@@ -16,4 +16,8 @@ class SpinResult {
         hitNumber nullable: false, blank: false
         recentHit nullable: false, blank: false
     }
+
+    static mapping = {
+      hitNumber index: true
+    }
 }

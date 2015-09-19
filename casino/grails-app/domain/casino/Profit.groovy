@@ -23,6 +23,7 @@ class Profit {
     }
 
     static mapping = {
+      day  formula: 'day(date_created)'
       week  formula: 'week(date_created)'
       month formula: 'month(date_created)'
       year  formula: 'year(date_created)'
