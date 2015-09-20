@@ -2,30 +2,38 @@ package casino
 
 class Profit {
 
-    /**
-     * 登録日時
-     */
-    Date dateCreated
+  /**
+   * 利益
+   */
+  BigDecimal  profit
 
-    String year
+  /**
+   * 有効
+   */
+  boolean enabled
 
-    String month
+  /**
+   * 登録日時
+   */
+  Date dateCreated
 
-    String week
+  String year
 
-    /**
-     * 利益
-     */
-    BigDecimal  profit
+  String month
 
-    static constraints = {
-        profit nullable: false, blank: false, scale: 2
-    }
+  String week
 
-    static mapping = {
-      day  formula: 'day(date_created)'
-      week  formula: 'week(date_created)'
-      month formula: 'month(date_created)'
-      year  formula: 'year(date_created)'
-    }
+  String day
+
+  static constraints = {
+      profit nullable: false, blank: false, scale: 2
+  }
+
+  static mapping = {
+    enabled defaultValue: "false"
+    day  formula: 'day(date_created)'
+    week  formula: 'week(date_created)'
+    month formula: 'month(date_created)'
+    year  formula: 'year(date_created)'
+  }
 }
