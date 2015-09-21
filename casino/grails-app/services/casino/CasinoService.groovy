@@ -16,7 +16,7 @@ class CasinoService {
     // ベットステータスを変える際の閾値
     // final def STATUS_CHANGED_TO_READY_NUM = 100
     final int STATUS_CHANGED_TO_BET_NUM = 200
-    // final int STATUS_CHANGED_TO_WAIT_NUM = 100
+    final int STATUS_CHANGED_TO_WAIT_NUM = 100
     // final int STATUS_CHANGED_TO_WAIT_IN_A_ROW = 10;
     final int IN_A_ROW_THRESHOLD = 100;
     // final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM_FROM = 10
@@ -47,7 +47,7 @@ class CasinoService {
         betObjMap.put("nextStakes", "-")
         betObjMap.put("spinNumFromFirstBet",0)
         betObjMap.put("inarowCount", 0)
-        // betObjMap.put("waited", false)
+        betObjMap.put("waited", false)
         betList.add(betObjMap)
       }
       return betList
@@ -135,10 +135,10 @@ BigDecimal stakes_sum = 0
               bet.spinResult = spinResult
               def recentHit = spinResult.recentHit
 
-              // if(betData.get("waited")) {
-              //   recentHit = recentHit + STATUS_CHANGED_TO_WAIT_NUM
-              //   betData.put("waited", false)
-              // }
+              if(betData.get("waited")) {
+                recentHit = recentHit + STATUS_CHANGED_TO_WAIT_NUM
+                betData.put("waited", false)
+              }
 
               stakes = Stakes.withCriteria {
                 eq('spinNum', recentHit)
@@ -155,7 +155,7 @@ BigDecimal stakes_sum = 0
               bet.save()
 
               //連チャン数の更新
-              if(spinResult.recentHit < IN_A_ROW_THRESHOLD) {
+              if(recentHit < IN_A_ROW_THRESHOLD) {
                 currentInarow++
               } else {
                 currentInarow = 0
@@ -164,7 +164,7 @@ BigDecimal stakes_sum = 0
               betData.put("inarowCount", currentInarow)
 
               // 再ベット判定
-              int spinNumFromFirstBet = betData.get("spinNumFromFirstBet") + spinResult.recentHit
+              int spinNumFromFirstBet = betData.get("spinNumFromFirstBet") + recentHit
               if(!isNotBeBetNewly && spinNumFromFirstBet <= BET_AGAIN_MAX_SPIN) {
                 bet = new Bet(betNumber: betDataNum, status: Bet.STATUS_BET)
                 bet.save()
@@ -187,6 +187,11 @@ BigDecimal stakes_sum = 0
               betData.put("status", Bet.STATUS_BET)
               betData.put("spinNumFromFirstBet", 0)
               currentStatus = Bet.STATUS_BET
+            } else if(currentStatus.equals(Bet.STATUS_WAIT)) {
+              bet = Bet.get(betData.get("id"))
+              bet.status = Bet.STATUS_BET
+              betData.put("status", Bet.STATUS_BET)
+              currentStatus = Bet.STATUS_BET
             }
             // } else if(currentStatus.equals(Bet.STATUS_WAIT) && spinResult.recentHit >= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM_FROM && spinResult.recentHit <= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM_TO) {
             //   bet = Bet.get(betData.get("id"))
@@ -195,19 +200,17 @@ BigDecimal stakes_sum = 0
             // }
           } else {
 
-            // if(betData.get("waited")) {
-            //   currentSpinNum = currentSpinNum + STATUS_CHANGED_TO_WAIT_NUM
-            // }
+            if(betData.get("waited")) {
+              currentSpinNum = currentSpinNum + STATUS_CHANGED_TO_WAIT_NUM
+            }
 
             if(currentStatus.equals(Bet.STATUS_BET)) {
               if(currentSpinNum == STATUS_CHANGED_TO_LOSE_NUM) {
                 bet = Bet.get(betData.get("id"))
                 bet.status = Bet.STATUS_LOSE
-                // bet.spinResult = spinResult
                 stakes = Stakes.withCriteria {
                   eq('spinNum', currentSpinNum)
                 }
-                // def profit = new Profit(profit: -stakes[0].stakesTotal)
                 profit = bet.profit
                 profit.profit = -stakes[0].stakesTotal
                 profit.enabled = true
@@ -223,9 +226,17 @@ BigDecimal stakes_sum = 0
                 betData.put("nextStakes", "-")
                 betData.put("inarowCount", 0)
                 currentStatus = Bet.STATUS_LOSE
-                // betData.put("waited", false)
+                betData.put("waited", false)
               } else {
                 bet = Bet.get(betData.get("id"))
+
+                if(currentSpinNum == STATUS_CHANGED_TO_WAIT_NUM) {
+                  bet.status = Bet.STATUS_WAIT
+                  betData.put("status", Bet.STATUS_WAIT)
+                  betData.put("waited", true)
+                  currentStatus = Bet.STATUS_WAIT
+                }
+
                 stakes = Stakes.withCriteria {
                   eq('spinNum', currentSpinNum)
                 }
@@ -239,16 +250,15 @@ BigDecimal stakes_sum = 0
                 bet.save()
               }
             }
-          }
-          //   } else if(currentStatus.equals(Bet.STATUS_BET) && currentSpinNum == STATUS_CHANGED_TO_WAIT_NUM) {
           //   // } else if(currentStatus.equals(Bet.STATUS_BET) && currentSpinNum == STATUS_CHANGED_TO_WAIT_NUM && currentInarow >= STATUS_CHANGED_TO_WAIT_IN_A_ROW) {
+          //   } else if(currentStatus.equals(Bet.STATUS_BET) && currentSpinNum == STATUS_CHANGED_TO_WAIT_NUM) {
           //     println "change Wait:" + currentInarow
           //     bet = Bet.get(betData.get("id"))
           //     bet.status = Bet.STATUS_WAIT
           //     betData.put("status", Bet.STATUS_WAIT)
           //     betData.put("waited", true)
           //   }
-          // }
+          }
 
 
   // ============================old bet judge=======================================//
