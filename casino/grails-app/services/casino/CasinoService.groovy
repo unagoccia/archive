@@ -3,6 +3,7 @@ package casino
 import grails.transaction.Transactional
 import grails.converters.*
 import java.util.concurrent.TimeUnit
+import java.text.SimpleDateFormat
 
 @Transactional
 class CasinoService {
@@ -16,13 +17,15 @@ class CasinoService {
     // ベットステータスを変える際の閾値
     // final def STATUS_CHANGED_TO_READY_NUM = 100
     final int STATUS_CHANGED_TO_BET_NUM = 200
-    final int STATUS_CHANGED_TO_WAIT_NUM = 100
+    // final int STATUS_CHANGED_TO_WAIT_NUM = 100
     // final int STATUS_CHANGED_TO_WAIT_IN_A_ROW = 10;
-    final int IN_A_ROW_THRESHOLD = 100;
+    // final int IN_A_ROW_THRESHOLD = 100;
     // final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM_FROM = 10
     // final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM_TO = 80
+    // final int STATUS_CHANGED_TO_BET_FROM_WAIT_NUM = 100
     final int STATUS_CHANGED_TO_LOSE_NUM = 200
-    final int BET_AGAIN_MAX_SPIN = 200;
+    final int BET_AGAIN_MAX_SPIN = 200
+    final int TARGET_AMOUNT = 400
 
     //WATCH(最大賭け金) 最終的には削除予定
     BigDecimal max_stakes = 0
@@ -46,8 +49,9 @@ class CasinoService {
         betObjMap.put("currentSpinNum", 0)
         betObjMap.put("nextStakes", "-")
         betObjMap.put("spinNumFromFirstBet",0)
-        betObjMap.put("inarowCount", 0)
-        betObjMap.put("waited", false)
+        // betObjMap.put("inarowCount", 0)
+        // betObjMap.put("waited", false)
+        // betObjMap.put("waitCount", 0)
         betList.add(betObjMap)
       }
       return betList
@@ -92,7 +96,7 @@ BigDecimal stakes_sum = 0
           def spinResult
           String betDataNum = betData.get("num")
           String currentStatus = betData.get("status")
-          int currentInarow = betData.get("inarowCount")
+          // int currentInarow = betData.get("inarowCount")
 
           // スピン結果の記録
           if(betDataNum.equals(spinResultNum)) {
@@ -135,10 +139,10 @@ BigDecimal stakes_sum = 0
               bet.spinResult = spinResult
               def recentHit = spinResult.recentHit
 
-              if(betData.get("waited")) {
-                recentHit = recentHit + STATUS_CHANGED_TO_WAIT_NUM
-                betData.put("waited", false)
-              }
+              // if(betData.get("waited")) {
+              //   recentHit = recentHit + STATUS_CHANGED_TO_WAIT_NUM
+              //   betData.put("waited", false)
+              // }
 
               stakes = Stakes.withCriteria {
                 eq('spinNum', recentHit)
@@ -155,13 +159,13 @@ BigDecimal stakes_sum = 0
               bet.save()
 
               //連チャン数の更新
-              if(recentHit < IN_A_ROW_THRESHOLD) {
-                currentInarow++
-              } else {
-                currentInarow = 0
-              }
+              // if(recentHit < IN_A_ROW_THRESHOLD) {
+              //   currentInarow++
+              // } else {
+              //   currentInarow = 0
+              // }
               // println "Win:" + currentInarow
-              betData.put("inarowCount", currentInarow)
+              // betData.put("inarowCount", currentInarow)
 
               // 再ベット判定
               int spinNumFromFirstBet = betData.get("spinNumFromFirstBet") + recentHit
@@ -187,12 +191,20 @@ BigDecimal stakes_sum = 0
               betData.put("status", Bet.STATUS_BET)
               betData.put("spinNumFromFirstBet", 0)
               currentStatus = Bet.STATUS_BET
-            } else if(currentStatus.equals(Bet.STATUS_WAIT)) {
-              bet = Bet.get(betData.get("id"))
-              bet.status = Bet.STATUS_BET
-              betData.put("status", Bet.STATUS_BET)
-              currentStatus = Bet.STATUS_BET
             }
+            // } else if(currentStatus.equals(Bet.STATUS_WAIT)) {
+              // int waitCount = betData.get("waitCount")
+              // if(waitCount == 2) {
+                // bet = Bet.get(betData.get("id"))
+                // bet.status = Bet.STATUS_BET
+                // betData.put("status", Bet.STATUS_BET)
+                // currentStatus = Bet.STATUS_BET
+                // betData.put("waitCount", 0)
+              // } else {
+              //   waitCount++
+              //   betData.put("waitCount", waitCount)
+              // }
+            // }
             // } else if(currentStatus.equals(Bet.STATUS_WAIT) && spinResult.recentHit >= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM_FROM && spinResult.recentHit <= STATUS_CHANGED_TO_BET_FROM_WAIT_NUM_TO) {
             //   bet = Bet.get(betData.get("id"))
             //   bet.status = Bet.STATUS_BET
@@ -200,9 +212,9 @@ BigDecimal stakes_sum = 0
             // }
           } else {
 
-            if(betData.get("waited")) {
-              currentSpinNum = currentSpinNum + STATUS_CHANGED_TO_WAIT_NUM
-            }
+            // if(betData.get("waited")) {
+            //   currentSpinNum = currentSpinNum + STATUS_CHANGED_TO_WAIT_NUM
+            // }
 
             if(currentStatus.equals(Bet.STATUS_BET)) {
               if(currentSpinNum == STATUS_CHANGED_TO_LOSE_NUM) {
@@ -226,16 +238,16 @@ BigDecimal stakes_sum = 0
                 betData.put("nextStakes", "-")
                 betData.put("inarowCount", 0)
                 currentStatus = Bet.STATUS_LOSE
-                betData.put("waited", false)
+                // betData.put("waited", false)
               } else {
                 bet = Bet.get(betData.get("id"))
 
-                if(currentSpinNum == STATUS_CHANGED_TO_WAIT_NUM) {
-                  bet.status = Bet.STATUS_WAIT
-                  betData.put("status", Bet.STATUS_WAIT)
-                  betData.put("waited", true)
-                  currentStatus = Bet.STATUS_WAIT
-                }
+                // if(currentSpinNum == STATUS_CHANGED_TO_WAIT_NUM) {
+                //   bet.status = Bet.STATUS_WAIT
+                //   betData.put("status", Bet.STATUS_WAIT)
+                //   betData.put("waited", true)
+                //   currentStatus = Bet.STATUS_WAIT
+                // }
 
                 stakes = Stakes.withCriteria {
                   eq('spinNum', currentSpinNum)
@@ -351,7 +363,6 @@ if(max_stakes < stakes_sum) {
   }
 }
 
-
         def spinResultList = getSpinResultList()
         result = [
           spinResultNum: spinResultNum,
@@ -429,6 +440,40 @@ if(max_stakes < stakes_sum) {
         result.add(tmp)
       }
       return result
+    }
+
+    private def getDaylyProfitList() {
+      def daylyProfitList = Profit.withCriteria {
+        eq "enabled", true
+        projections {
+          sum('profit')
+          groupProperty('year')
+          groupProperty('month')
+          groupProperty('day')
+        }
+      }
+
+      // def result = new ArrayList<HashMap>()
+      def result = new HashMap()
+      for (daylyProfit in daylyProfitList) {
+        // def tmp = new HashMap()
+        // tmp.put("day", daylyProfit[1] + "/" + daylyProfit[2] + "/" + daylyProfit[3])
+        // tmp.put("dProfit", daylyProfit[0])
+        // result.add(tmp)
+        String day = daylyProfit[1] + "/" + daylyProfit[2] + "/" + daylyProfit[3]
+        result.put(day, daylyProfit[0])
+      }
+      return result
+    }
+
+    def isTargetIncomeAchievementOfToday() {
+      SimpleDateFormat formatA = new SimpleDateFormat("yyyy/M/d");
+      String formatDate = formatA.format(new Date());
+      def daylyProfit = getDaylyProfitList().get(formatDate)
+      if(daylyProfit >= TARGET_AMOUNT) {
+        return true
+      }
+      return false
     }
 
 }

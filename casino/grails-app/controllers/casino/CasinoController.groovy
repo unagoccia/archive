@@ -63,6 +63,9 @@ class CasinoController {
 
     while(autoMode) {
       casinoService.spin()
+      if(casinoService.isTargetIncomeAchievementOfToday()) {
+        autoMode = false
+      }
     }
   }
 
