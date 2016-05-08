@@ -1,182 +1,186 @@
 <!DOCTYPE html>
 <html lang="ja" ng-app="casinoApp">
 
-<head>
-  <meta charset="UTF-8">
-  <title>カジノ自動ベットシステム</title>
+    <head>
+        <meta charset="UTF-8">
+        <title>カジノ自動ベットシステム</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <!-- angular -->
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+        <!-- angular -->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 
-  <!-- jquery -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <!-- jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
-  <!-- Boot Strap -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <!-- Boot Strap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-  <!-- Boot Strap Slecter -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
+        <!-- Boot Strap Slecter -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
 
-  <!-- Date Picker -->
-  <link rel="stylesheet" href="vendors/bootstrap/bootstrap-datepicker.min.css">
-  <script src="vendors/bootstrap/bootstrap-datepicker.min.js"></script>
+        <!-- Date Picker -->
+        <link rel="stylesheet" href="vendors/bootstrap/bootstrap-datepicker.min.css">
+        <script src="vendors/bootstrap/bootstrap-datepicker.min.js"></script>
 
-  <!-- LESS -->
-  <link rel="stylesheet/less" type="text/css" href="less/styles.less">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.5.1/less.min.js"></script>
+        <!-- LESS -->
+        <link rel="stylesheet/less" type="text/css" href="less/styles.less">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.5.1/less.min.js"></script>
 
-  <!-- MyJS -->
-  <script src="js/application.js"></script>
-  <script src="js/controllers.js"></script>
+        <!-- MyJS -->
+        <script src="js/application.js"></script>
+        <script src="js/controllers.js"></script>
 
-</head>
+    </head>
 
-<body>
-  <div>
-    <div id="gameCtrl" ng-controller="GameController">
-      <div id="spinResult">
-        <img id="spinResultImg" src="img/pop.png">
-        <div id="spinResultNum">{{spinResultNum}}</div>
-      </div>
+    <body>
+        <div>
+            <div id="gameCtrl" ng-controller="GameController">
+                <div id="spinResult">
+                    <img id="spinResultImg" src="img/pop.png">
+                    <div id="spinResultNum">{{spinResultNum}}</div>
+                </div>
 
-      <div id="operationBtn">
-        <button id="spin-btn" class="btn btn-primary" ng-disabled="isAuto" ng-click="reset()">RESET</button>
-        <button id="auto-btn" class="btn" ng-class="{'btn-success': isAuto, 'btn-default': !isAuto}" ng-click="autoModeChange()">AUTO / {{autoMode}}</button>
-        <button id="bet-btn" class="btn btn-danger" ng-disabled="isAuto">BET</button>
-        <button id="spin-btn" class="btn btn-warning" ng-disabled="isAuto" ng-click="spin()">SPIN</button>
-        <br>
-        <label >
-          <input type="checkbox" ng-model="notBeBetNewly" ng-change="notBeBetNewlyChange()"> not be bet newly.</input>
-        </label>
-      </div>
-    </div>
+                <div id="operationBtn">
+                    <button id="spin-btn" class="btn btn-primary" ng-disabled="isAuto" ng-click="reset()">RESET</button>
+                    <button id="auto-btn" class="btn" ng-class="{'btn-success': isAuto, 'btn-default': !isAuto}" ng-click="autoModeChange()">AUTO /
+                        {{autoMode}}</button>
+                    <button id="bet-btn" class="btn btn-danger" ng-disabled="isAuto">BET</button>
+                    <button id="spin-btn" class="btn btn-warning" ng-disabled="isAuto" ng-click="spin()">SPIN</button>
+                    <br>
+                    <label >
+                        <input type="checkbox" ng-model="notBeBetNewly" ng-change="notBeBetNewlyChange()">
+                            not be bet newly.</input>
+                    </label>
+                </div>
+            </div>
 
-    <hr>
+            <hr>
 
-    <div id="betTable" ng-controller="BetTableController" class="ng-scope">
-      <table class="table table-striped table-bordered">
-        <caption>
-          ■ Bet
-        </caption>
-        <thead>
-          <tr>
-            <th ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.num}}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.status}}</td>
-          </tr>
-          <tr>
-            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.currentSpinNum}}</td>
-          </tr>
-          <tr>
-            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.nextStakes}}</td>
-          </tr>
-        </tbody>
-        <thead>
-          <tr>
-            <th ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.num}}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.status}}</td>
-          </tr>
-          <tr>
-            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.currentSpinNum}}</td>
-          </tr>
-          <tr>
-            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.nextStakes}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            <div id="betTable" ng-controller="BetTableController" class="ng-scope">
+                <table class="table table-striped table-bordered">
+                    <caption>
+                        ■ Bet
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.num}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.status}}</td>
+                        </tr>
+                        <tr>
+                            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.currentSpinNum}}</td>
+                        </tr>
+                        <tr>
+                            <td ng-repeat="bet in bets | offset: 0 | limitTo: bets.length/2+1">{{bet.nextStakes}}</td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.num}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.status}}</td>
+                        </tr>
+                        <tr>
+                            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.currentSpinNum}}</td>
+                        </tr>
+                        <tr>
+                            <td ng-repeat="bet in bets | offset: bets.length/2+1 | limitTo: bets.length">{{bet.nextStakes}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <div id="spinResultHistoryTable" ng-controller="SpinResultTableController" class="ng-scope">
-      <table class="table table-striped table-bordered">
-        <caption>
-          ■ Spin Result
-        </caption>
-        <colgroup>
-          <col class="width5" />
-          <col class="width25" />
-          <col class="width70" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Number</th>
-            <th>Recent Hit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="result in spinResultList">
-            <td>{{result.id}}</td>
-            <td>{{result.hitNumber}}</td>
-            <td>{{result.recentHit}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            <div id="spinResultHistoryTable" ng-controller="SpinResultTableController" class="ng-scope">
+                <table class="table table-striped table-bordered">
+                    <caption>
+                        ■ Spin Result
+                    </caption>
+                    <colgroup>
+                        <col class="width5"/>
+                        <col class="width25"/>
+                        <col class="width70"/>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Number</th>
+                            <th>Recent Hit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="result in spinResultList">
+                            <td>{{result.id}}</td>
+                            <td>{{result.hitNumber}}</td>
+                            <td>{{result.recentHit}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <div id="profitTable" ng-controller="ProfitTableController" class="ng-scope">
-      <table class="table table-striped table-bordered">
-        <caption>
-          ■ Profit
-        </caption>
-        <colgroup>
-        </colgroup>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Date</th>
-            <th>Profit</th>
-            <th>Number</th>
-            <th>Recent Hit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="profit in profitList">
-            <td>{{profit.id}}</td>
-            <td>{{profit.date}}</td>
-            <td>{{profit.profit}}</td>
-            <td>{{profit.number}}</td>
-            <td>{{profit.recentHit}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            <div id="profitTable" ng-controller="ProfitTableController" class="ng-scope">
+                <table class="table table-striped table-bordered">
+                    <caption>
+                        ■ Profit
+                        <span id="orderProfit">order:
+                            <select ng-model="orderProfit" ng-change="changeOrderProfit()" ng-options="o.text for o in profitOrders"></select>
+                        </span>
+                    </caption>
+                    <colgroup></colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Profit</th>
+                            <th>Number</th>
+                            <th>Recent Hit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="profit in profitList">
+                            <td>{{profit.id}}</td>
+                            <td>{{profit.date}}</td>
+                            <td>{{profit.profit}}</td>
+                            <td>{{profit.number}}</td>
+                            <td>{{profit.recentHit}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <div id="monthlyProfitTable" ng-controller="MonthlyProfitTableController" class="ng-scope">
-      <table class="table table-striped table-bordered">
-        <caption>
-          ■ Monthly Profit
-        </caption>
-        <colgroup>
-          <col class="width30" />
-          <col class="width70" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th>Month</th>
-            <th>Profit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="monthlyProfit in monthlyProfitList">
-            <td>{{monthlyProfit.month}}</td>
-            <td>{{monthlyProfit.mProfit}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+            <div id="monthlyProfitTable" ng-controller="MonthlyProfitTableController" class="ng-scope">
+                <table class="table table-striped table-bordered">
+                    <caption>
+                        ■ Monthly Profit
+                    </caption>
+                    <colgroup>
+                        <col class="width30"/>
+                        <col class="width70"/>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="monthlyProfit in monthlyProfitList">
+                            <td>{{monthlyProfit.month}}</td>
+                            <td>{{monthlyProfit.mProfit}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-</body>
+    </body>
 </html>

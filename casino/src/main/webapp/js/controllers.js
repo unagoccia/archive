@@ -7,6 +7,10 @@ casinoApp.filter('offset', function() {
   };
 });
 
+casinoApp.config(function($httpProvider) {
+    $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;application/json;charset=utf-8';
+});
+
 angular.element(document).ready(function() {
   var gameCtrlScope = angular.element(gameCtrl).scope();
   var betTableCtrlScope = angular.element(betTable).scope();
@@ -195,13 +199,25 @@ casinoApp.controller("SpinResultTableController", function($scope, $http, $inter
 casinoApp.controller("ProfitTableController", function($scope, $http, $interval) {
   var time;
   $scope.profitList = [];
+  $scope.profitOrders = [
+    {value:'id', text:'#'},
+    {value:'dateCreated', text:'Date'},
+    {value:'profit', text:'Profit'},
+    {value:'betNumber', text:'Number'},
+    {value:'recentHit', text:'RecentHit'}
+  ];
+  $scope.orderProfit = $scope.profitOrders[0];
+
+  $scope.changeOrderProfit = function() {
+    $scope.getPeofitListAndUpdate();
+  }
 
   $scope.update = function(data) {
     $scope.profitList = data;
   };
 
   $scope.getPeofitListAndUpdate = function() {
-    $http.get("casino/getProfitList").success( function( data ) {
+    $http.post("casino/getProfitList",$.param({order: $scope.orderProfit.value})).success( function( data ) {
       $scope.update(data);
     });
   };

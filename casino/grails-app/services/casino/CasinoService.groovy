@@ -13,7 +13,7 @@ class CasinoService {
     HashMap<String, String> loseMap = new HashMap<String, String>() //loosMap(key:number, value:betID)
 
     boolean isNotBeBetNewly = false
-    boolean isSimulation = true
+    boolean isSimulation = false
 
     // ベットステータスを変える際の閾値
     // final def STATUS_CHANGED_TO_READY_NUM = 100
@@ -28,10 +28,12 @@ class CasinoService {
     final int BET_AGAIN_MAX_SPIN = 200
     final int TARGET_AMOUNT = 2000
     final int LIMIT_PROFIT_OF_ONECE = 400
+    final String ORDER_PROFIT = "profit"
+    final String ORDER_RECENT_HIT = "recentHit"
     int baseProfit = 0
 
-    //WATCH(最大賭け金) 最終的には削除予定
-    BigDecimal max_stakes = 0
+//WATCH(最大賭け金) 最終的には削除予定
+BigDecimal max_stakes = 0
 
     def isNotBeBetNewly() {
       return isNotBeBetNewly
@@ -48,7 +50,7 @@ class CasinoService {
         HashMap betObjMap = new HashMap()
         betObjMap.put("id", null)
         betObjMap.put("num", i)
-        betObjMap.put("status", "-")
+        betObjMap.put("status", Bet.STATUS_NO_BET)
         betObjMap.put("currentSpinNum", 0)
         betObjMap.put("nextStakes", "-")
         betObjMap.put("spinNumFromFirstBet",0)
@@ -59,7 +61,7 @@ class CasinoService {
 
     def bet() {
       println "bet"
-      String cmd = "cmd /c C:/casino/UWSC/uwsc48e/UWSC.exe C:/casino/UWSC/script/spinAndResult.uws"
+      String cmd = "cmd /c " + casinoProperties.get(casinoProperties.UWSC_EXE) + space + casinoProperties.get(casinoProperties.UWSC_SCRIPT_DIR) + "spinAndResult.uws" + space + casinoProperties.get(casinoProperties.SPIN_RESULT_FILE) + space + casinoProperties.get(casinoProperties.UWSC_IMAGE_DIR)
       Process p = cmd.execute()
       p.waitFor();
     }
@@ -71,7 +73,7 @@ class CasinoService {
 
       def result
       boolean isSuccess = p.waitFor(30, TimeUnit.SECONDS); //10秒でタイムアウト
-    	if (isSuccess) {
+      if (isSuccess) {
         Properties spinResultProp = new Properties()
         File spinResultFile = new File(casinoProperties.get(casinoProperties.SPIN_RESULT_FILE))
         def dis = spinResultFile.newDataInputStream()
@@ -88,14 +90,19 @@ class CasinoService {
 BigDecimal stakes_sum = 0
 
         // TODO リファクタリング
-        if(isNotBeBetNewly && !isBet()) {
-          isNotBeBetNewly = false
-          isSimulation = true
-        }
-        // 設定金額に達したら isNotBeBetNewly = true
+        // if(isNotBeBetNewly && !isBet()) {
+        //   isNotBeBetNewly = false
+        //   isSimulation = true
+        // }
+
+        // 設定金額に達したら一旦ベットしないようにする(isNotBeBetNewly=true)
+        // 別途していたら負けてたタイミングで再度ベット開始
         def todayProfit = getTodayProfit()
-        if((baseProfit + LIMIT_PROFIT_OF_ONECE) >= todayProfit) {
-          isNotBeBetNewly = true
+        def profitAtOnce = todayProfit - baseProfit
+        if(LIMIT_PROFIT_OF_ONECE <= profitAtOnce) {
+            isNotBeBetNewly = true
+            isSimulation = true
+            baseProfit = getTodayProfit()
         }
 
         // ベットリスト更新
@@ -170,11 +177,11 @@ BigDecimal stakes_sum = 0
                 currentStatus = Bet.STATUS_BET
               } else {
                 betData.put("id", null)
-                betData.put("status", "-")
+                betData.put("status", Bet.STATUS_NO_BET)
                 betData.put("spinNumFromFirstBet", 0)
-                currentStatus = "-"
+                currentStatus = Bet.STATUS_NO_BET
               }
-            } else if(!isNotBeBetNewly && currentStatus.equals("-") && spinResult.recentHit >= STATUS_CHANGED_TO_BET_NUM) {
+            } else if(!isNotBeBetNewly && currentStatus.equals(Bet.STATUS_NO_BET) && spinResult.recentHit >= STATUS_CHANGED_TO_BET_NUM) {
               bet = new Bet(betNumber: betDataNum, status: Bet.STATUS_BET)
               bet.save()
 
@@ -205,19 +212,16 @@ BigDecimal stakes_sum = 0
                 def loseBetID = betData.get("id")
                 loseMap.put(betDataNum, loseBetID)
                 betData.put("id", null)
-                betData.put("status", "-")
+                betData.put("status", Bet.STATUS_NO_BET)
                 betData.put("spinNumFromFirstBet", 0)
                 betData.put("nextStakes", "-")
                 betData.put("inarowCount", 0)
-                currentStatus = "-"
+                currentStatus = Bet.STATUS_NO_BET
                 // currentStatus = Bet.STATUS_LOSE
                 // betData.put("waited", false)
 
                 isNotBeBetNewly = false
                 isSimulation = false
-                if(!isSimulation) {
-                  baseProfit = getTodayProfit()
-                }
               } else {
                 bet = Bet.get(betData.get("id"))
 
@@ -297,21 +301,35 @@ if(max_stakes < stakes_sum) {
       return spinResultList
     }
 
-    def getProfitList() {
+    def getProfitList(reqOrder) {
       def bets = Bet.withCriteria {
         isNotNull("profit")
         profit {
           eq "enabled", true
         }
         maxResults(5)
-        order("id", "desc")
+        switch ("${reqOrder}") {
+          case ORDER_PROFIT:
+            profit {
+                order("${reqOrder}", "desc")
+            }
+            break
+          case ORDER_RECENT_HIT:
+            spinResult {
+              order("${reqOrder}", "desc")
+            }
+            break
+          default:
+            order("${reqOrder}", "desc")
+            break
+        }
       }
 
       def result = new ArrayList<HashMap>()
       for (bet in bets) {
         def tmp = new HashMap()
         tmp.put("id", bet.profit.id)
-        tmp.put("date", bet.profit.dateCreated.format("MM/dd"))
+        tmp.put("date", bet.profit.dateCreated.format("MM/dd HH:mm:ss"))
         tmp.put("number", bet.betNumber)
         tmp.put("profit", bet.profit.profit)
         if(bet.spinResult) {
@@ -372,15 +390,14 @@ if(max_stakes < stakes_sum) {
       SimpleDateFormat formatA = new SimpleDateFormat("yyyy/M/d");
       String formatDate = formatA.format(new Date());
       def todayProfit = getDaylyProfitList().get(formatDate)
+      todayProfit = todayProfit ?: 0
 
       return todayProfit
     }
 
     def isTargetIncomeAchievementOfToday() {
-      SimpleDateFormat formatA = new SimpleDateFormat("yyyy/M/d");
-      String formatDate = formatA.format(new Date());
-      def daylyProfit = getDaylyProfitList().get(formatDate)
-      if(daylyProfit >= TARGET_AMOUNT) {
+      def todayProfit = getTodayProfit()
+      if(todayProfit >= TARGET_AMOUNT) {
         return true
       }
       return false
@@ -389,7 +406,7 @@ if(max_stakes < stakes_sum) {
     def isBet() {
       for(HashMap betData : betList){
         String currentStatus = betData.get("status")
-        if(!currentStatus.equals("-")) {
+        if(!currentStatus.equals(Bet.STATUS_NO_BET)) {
           return true
         }
       }

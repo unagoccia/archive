@@ -54,7 +54,7 @@ class Bet {
   public static final String STATUS_WAIT = "WAIT"
 
   /**
-   * 負け
+   * 勝ち
    */
   public static final String STATUS_WIN = "WIN"
 
@@ -66,7 +66,7 @@ class Bet {
   /**
    * ベットなし
    */
-  public static final String STATUS_NO_BET = "NO_BET"
+  public static final String STATUS_NO_BET = "-"
 
   static constraints = {
       betNumber nullable: false, blank: false

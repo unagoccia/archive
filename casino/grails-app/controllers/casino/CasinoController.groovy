@@ -80,7 +80,7 @@ class CasinoController {
   }
 
   def getProfitList() {
-    def result = casinoService.getProfitList()
+    def result = casinoService.getProfitList(params.order)
     render result as JSON
   }
 

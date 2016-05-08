@@ -79,17 +79,17 @@ endpoints:
 
 dataSource:
     pooled: true
-    dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=UTF8
-    driverClassName: com.mysql.jdbc.Driver
+    jmxExport: true
+    driverClassName: org.gjt.mm.mysql.Driver
     username: root
-    password: 7hitoH1ra
+    password: root
 
 environments:
     development:
         dataSource:
-            dbCreate: update #create-drop
-            url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=UTF8
+            dbCreate: update
+            # url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=UTF8
+            url: jdbc:mysql://192.168.11.6:3306/casino?useUnicode=true&characterEncoding=UTF8
     test:
         dataSource:
             dbCreate: update
