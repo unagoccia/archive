@@ -28,6 +28,7 @@ class CasinoService {
     final int BET_AGAIN_MAX_SPIN = 200
     final int TARGET_AMOUNT = 2000
     final int LIMIT_PROFIT_OF_ONECE = 400
+    final String ORDER_DATE = "lastUpdated"
     final String ORDER_PROFIT = "profit"
     final String ORDER_RECENT_HIT = "recentHit"
     int baseProfit = 0
@@ -309,9 +310,14 @@ if(max_stakes < stakes_sum) {
         }
         maxResults(5)
         switch ("${reqOrder}") {
+          case ORDER_DATE:
+            profit {
+              order("${reqOrder}", "desc")
+            }
+            break
           case ORDER_PROFIT:
             profit {
-                order("${reqOrder}", "desc")
+              order("${reqOrder}", "desc")
             }
             break
           case ORDER_RECENT_HIT:
@@ -329,7 +335,7 @@ if(max_stakes < stakes_sum) {
       for (bet in bets) {
         def tmp = new HashMap()
         tmp.put("id", bet.profit.id)
-        tmp.put("date", bet.profit.dateCreated.format("MM/dd HH:mm:ss"))
+        tmp.put("date", bet.profit.lastUpdated.format("MM/dd HH:mm:ss"))
         tmp.put("number", bet.betNumber)
         tmp.put("profit", bet.profit.profit)
         if(bet.spinResult) {

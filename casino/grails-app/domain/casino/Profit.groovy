@@ -17,6 +17,11 @@ class Profit {
    */
   Date dateCreated
 
+  /**
+   * 更新日時
+   */
+  Date lastUpdated
+
   String year
 
   String month

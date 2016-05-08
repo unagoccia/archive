@@ -201,7 +201,7 @@ casinoApp.controller("ProfitTableController", function($scope, $http, $interval)
   $scope.profitList = [];
   $scope.profitOrders = [
     {value:'id', text:'#'},
-    {value:'dateCreated', text:'Date'},
+    {value:'lastUpdated', text:'Date'},
     {value:'profit', text:'Profit'},
     {value:'betNumber', text:'Number'},
     {value:'recentHit', text:'RecentHit'}
