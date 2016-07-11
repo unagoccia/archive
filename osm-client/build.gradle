@@ -1,0 +1,23 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.8.0"
+  }
+}
+
+apply plugin: "de.richsource.gradle.plugins.typescript"
+
+compileTypeScript {
+    source = [file("/Users/unagoccia/git/archive/osm/src/ts")]
+    outputDir = new File("/Users/unagoccia/git/archive/osm/grails-app/assets/javascripts/app")
+    // rootDir = new File('/Users/unagoccia/git/archive/osm/src/ts')
+	module = 'UMD'
+	experimentalDecorators = true
+	preserveConstEnums = true
+	inlineSourceMap = true
+	inlineSources = true
+}
